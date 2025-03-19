@@ -1,6 +1,8 @@
 package it.multicoredev.nbtr.model;
 
+import com.google.gson.annotations.SerializedName;
 import it.multicoredev.mbcore.spigot.Text;
+import it.multicoredev.nbtr.NBTRecipes;
 import it.multicoredev.nbtr.utils.ChatFormat;
 import it.multicoredev.nbtr.utils.VersionUtils;
 import org.bukkit.Bukkit;
@@ -12,6 +14,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * BSD 3-Clause License
@@ -44,50 +50,50 @@ import org.jetbrains.annotations.Nullable;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class Item {
+@RequiredArgsConstructor(access = AccessLevel.PUBLIC)
+public final class Item {
+
+    @Getter(AccessLevel.PUBLIC)
     private final @Nullable Material material;
+
+    // Getter is not explicitly defined by Lombok, because method should default to 1 if unspecified.
     private final @Nullable Integer amount;
+
+    @Getter(AccessLevel.PUBLIC)
     private final @Nullable String name;
+
+    @Getter(AccessLevel.PUBLIC)
     private final @Nullable List<String> lore;
+
+    // Getter os mpt not explicitly defined by Lombok, because it is named differently.
     private final @Nullable String nbt;
+
+    @Getter(AccessLevel.PUBLIC)
     private final @Nullable String components;
 
-    public Item(final @Nullable Material material, final @Nullable Integer amount, final @Nullable String name, final @Nullable List<String> lore, final @Nullable String nbt, final @Nullable String components) {
-        this.material = material;
-        this.amount = amount;
-        this.name = name;
-        this.lore = lore;
-        this.nbt = nbt;
-        this.components = components;
-    }
+    // This is the identifier of plugin-defined custom item.
+    @Getter(AccessLevel.PUBLIC)
+    @SerializedName("registered_item")
+    private final @Nullable String registeredItem;
 
-    public @Nullable Material getMaterial() {
-        return material;
-    }
-
-    public int getAmount() {
-        if (amount != null) return amount > 0 ? amount : 1;
-        return 1;
-    }
-
-    public @Nullable String getName() {
-        return name;
-    }
-
-    public @Nullable List<String> getLore() {
-        return lore;
-    }
-
-    public @Nullable String geNBT() {
+    /** Returns the NBT string of the item. */
+    public String getNBT() {
         return nbt;
-    }
-
-    public @Nullable String getComponents() {
-        return components;
     }
 
     @SuppressWarnings("deprecation") // Suppressing @Deprecated warnings. It's Paper that deprecates ChatColor methods and they're called only when running Spigot. It's also Bukkit#getUnsafe which we must use at this point.
     public ItemStack toItemStack() throws IllegalArgumentException {
+        if (registeredItem != null) {
+            final @Nullable ItemStack item = NBTRecipes.getInstance().getCustomItemRegistry().get(registeredItem);
+            // Throwing exception if custom item doesn't exist in the registry.
+            if (item == null)
+                throw new IllegalStateException("Custom item \"" + registeredItem + "\" does not exist.");
+            // Setting amount if specified and greater than 0.
+            if (amount != null && amount > 0)
+                item.setAmount(Math.min(item.getMaxStackSize(), amount));
+            // Returning the item.
+            return item;
+        }
         final ItemStack item = new ItemStack(material);
         // Setting NBT/Components if specified. This is called first as it can be overridden by named properties in next steps.
         if (Bukkit.getUnsafe().getProtocolVersion() >= 766) {
@@ -124,6 +130,6 @@ public class Item {
     }
 
     public boolean isValid() {
-        return material != null;
+        return (material == null && registeredItem == null) == false;
     }
 }

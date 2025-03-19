@@ -2,9 +2,10 @@ package it.multicoredev.nbtr.utils;
 
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
 
 public final class ChatFormat {
 

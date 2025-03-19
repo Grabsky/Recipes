@@ -34,26 +34,52 @@ import it.multicoredev.mclib.json.JsonConfig;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class Config extends JsonConfig {
+public final class Config extends JsonConfig {
+
+    @SerializedName("namespace")
     public String namespace;
-    @SerializedName("insufficient_permissions")
-    public String insufficientPerms;
-    @SerializedName("incorrect_usage")
-    public String incorrectUsage;
+
+    @SerializedName("reloaded")
     public String reloaded;
-    @SerializedName("recipes_list")
-    public String recipesList;
-    @SerializedName("recipes_list_item")
-    public String recipesListItem;
+
+    @SerializedName("recipes_list_header")
+    public String recipesListHeader;
+
+    @SerializedName("recipes_list_entry")
+    public String recipesListEntry;
+
+    @SerializedName("recipes_list_footer")
+    public String recipesListFooter;
+
+    @SerializedName("custom_items_list_header")
+    public String customItemsListHeader;
+
+    @SerializedName("custom_items_list_entry")
+    public String customItemsListEntry;
+
+    @SerializedName("custom_items_list_footer")
+    public String customItemsListFooter;
 
     @Override
     public Config init() {
-        if (namespace == null) namespace = "nbtrecipes";
-        if (insufficientPerms == null) insufficientPerms = "<red>Insufficient permissions!";
-        if (incorrectUsage == null) incorrectUsage = "<red>Incorrect usage!";
-        if (reloaded == null) reloaded = "<green>Plugin has been reloaded.";
-        if (recipesList == null) recipesList = "<gold>There are <yellow>{amount} <gold>recipes loaded:";
-        if (recipesListItem == null) recipesListItem = "  <yellow>{recipe}";
+        // Setting default values...
+        if (namespace == null)
+            namespace = "nbtrecipes";
+        if (reloaded == null)
+            reloaded = "<dark_gray>› <gray>Plugin <gold>NBTRecipes<gray> has been reloaded.";
+        if (recipesListHeader == null)
+            recipesListHeader = "<dark_gray><st>---------------------</st>  <gray>Recipes  <dark_gray><st>---------------------</st><newline>";
+        if (recipesListEntry == null)
+            recipesListEntry = " <#848484>{number}. <#E0C865>{recipe}";
+        if (recipesListFooter == null)
+            recipesListFooter = "<newline><dark_gray><st>---------------------------------------------------</st>";
+        if (customItemsListHeader == null)
+            customItemsListHeader = "<dark_gray><st>-------------------</st>  <gray>Custom Items  <dark_gray><st>-------------------</st><newline>";
+        if (customItemsListEntry == null)
+            customItemsListEntry = " <#848484>{number}. <#E0C865>{item}";
+        if (customItemsListFooter == null)
+            customItemsListFooter = "<newline><dark_gray><st>---------------------------------------------------</st>";
+        // Returning...
         return this;
     }
 }

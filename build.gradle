@@ -1,0 +1,58 @@
+plugins {
+    id("java-library")
+    id("de.eldoria.plugin-yml.bukkit") version "0.7.1"
+    id("com.gradleup.shadow") version "8.3.5"
+}
+
+group = "it.multicoredev.nbtr"
+version = "2.0.0-SNAPSHOT"
+description = "NBTRecipes"
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url = "https://repo.papermc.io/repository/maven-public/" }
+}
+
+dependencies {
+    // Lombok
+    compileOnly("org.projectlombok:lombok:1.18.36")
+    annotationProcessor("org.projectlombok:lombok:1.18.36")
+    // Paper API
+    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
+    // Libraries
+    implementation("it.multicoredev.mbcore.spigot:MBCore-spigot:8.0.0")
+    implementation("it.multicoredev.mclib:MCLib-Configurations:1.7.2.6")
+    // Lamp (Command Framework)
+    implementation("io.github.revxrsal:lamp.common:4.0.0-rc.9")
+    implementation("io.github.revxrsal:lamp.bukkit:4.0.0-rc.9")
+    // bStats
+    implementation("org.bstats:bstats-bukkit:3.0.2")
+}
+
+tasks {
+    shadowJar {
+        shadowJar.archiveFileName = "${rootProject.name}-${project.version}.jar"
+        relocate("org.bstats", "it.multicoredev.nbtr.bstats")
+        relocate("t.multicoredev.mbcore", "it.multicoredev.nbtr.mbcore")
+        relocate("t.multicoredev.mclib", "it.multicoredev.nbtr.mclib")
+    }
+    compileJava {
+        options.fork = true
+        options.compilerArgs += ["--enable-preview", "-parameters"]
+        // Setting compatibility to Java 21 (above should work too).
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+}
+
+
+bukkit {
+    main = "it.multicoredev.nbtr.NBTRecipes"
+    apiVersion = "1.20"
+    authors = ["LoreSchaeffer"]
+    contributors = ["LoreSchaeffer", "Grabsky"]
+    foliaSupported = true
+}
+
+

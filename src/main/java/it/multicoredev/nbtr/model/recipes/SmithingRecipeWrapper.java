@@ -2,7 +2,6 @@ package it.multicoredev.nbtr.model.recipes;
 
 import it.multicoredev.nbtr.model.Item;
 import it.multicoredev.nbtr.utils.SmithingRecipeGenerator;
-import it.multicoredev.nbtr.utils.VersionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.SmithingRecipe;

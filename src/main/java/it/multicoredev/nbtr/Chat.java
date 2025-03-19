@@ -1,7 +1,6 @@
 package it.multicoredev.nbtr;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonSyntaxException;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;

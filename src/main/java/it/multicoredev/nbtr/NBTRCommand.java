@@ -1,15 +1,20 @@
 package it.multicoredev.nbtr;
 
 import it.multicoredev.mbcore.spigot.Text;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import revxrsal.commands.annotation.Command;
+import revxrsal.commands.bukkit.annotation.CommandPermission;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Locale;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 /**
  * BSD 3-Clause License
@@ -42,49 +47,68 @@ import java.util.Locale;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class NBTRCommand implements CommandExecutor, TabCompleter {
+@RequiredArgsConstructor(access = AccessLevel.PUBLIC, onConstructor_ = @Internal)
+public final class NBTRCommand {
+
     private final NBTRecipes plugin;
 
-    public NBTRCommand(NBTRecipes plugin) {
-        this.plugin = plugin;
+    @Command("nbtr reload")
+    @CommandPermission("nbtr.command")
+    public void onReload(final @NotNull CommandSender sender) {
+        // Reloading the plugin.
+        plugin.onReload();
+        // Sending message to the sender.
+        Text.get().send(Text.toMiniMessage(plugin.config().reloaded), sender);
     }
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission("nbtr.command")) {
-            Text.get().send(Text.toMiniMessage(plugin.config().insufficientPerms), sender);
-            return true;
-        }
-
-        if (args.length == 0) {
-            Text.get().send(Text.toMiniMessage(plugin.config().incorrectUsage), sender);
-            return true;
-        }
-
-        switch (args[0].toLowerCase(Locale.ROOT)) {
-            case "reload" -> {
-                // Disabling the plugin.
-                plugin.onDisable();
-                // Enabling the plugin again.
-                plugin.onEnable();
-                // Sending message to the sender.
-                Text.get().send(Text.toMiniMessage(plugin.config().reloaded), sender);
-            }
-            case "list" -> {
-                Text.get().send(Text.toMiniMessage(plugin.config().recipesList).replace("{amount}", String.valueOf(plugin.getRecipes().size())), sender);
-                plugin.getRecipes().forEach(recipe -> Text.get().send(Text.toMiniMessage(plugin.config().recipesListItem).replace("{recipe}", recipe.getKey().toString()), sender));
-            }
-            default -> Text.get().send(Text.toMiniMessage(plugin.config().incorrectUsage), sender);
-        }
-
-        return true;
+    @Command("nbtr list_recipes")
+    @CommandPermission("nbtr.command")
+    public void onListRecipes(final @NotNull CommandSender sender) {
+        // Sending header message to the sender.
+        Text.get().send(Text.toMiniMessage(plugin.config().recipesListHeader), sender);
+        // Preparing AtomicInteger counter which is used to count list entries.
+        final AtomicInteger number = new AtomicInteger(0);
+        // Iterating over the recipes list and sending keys to the sender.
+        plugin.getRecipes().forEach(recipe -> {
+            // Sending the list entry to the sender.
+            Text.get().send(Text.toMiniMessage(plugin.config().recipesListEntry).replace("{number}", number.incrementAndGet() + "").replace("{recipe}", recipe.getKey().asString()), sender);
+        });
+        // Sending footer message to the sender.
+        Text.get().send(Text.toMiniMessage(plugin.config().recipesListFooter), sender);
     }
 
-    @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission("nbtr.command")) return null;
-        if (args.length == 1) return TabCompleterUtil.getCompletions(args[0], "reload", "list");
-
-        return null;
+    @Command("nbtr list_items")
+    @CommandPermission("nbtr.command")
+    public void onListItems(final @NotNull CommandSender sender) {
+        // Sending header message to the sender.
+        Text.get().send(Text.toMiniMessage(plugin.config().customItemsListHeader), sender);
+        // Preparing AtomicInteger counter which is used to count list entries.
+        final AtomicInteger number = new AtomicInteger(0);
+        // Iterating over the custom items registry and sending item identifiers to the sender.
+        plugin.getCustomItemRegistry().all().keySet().forEach(identifier -> {
+            // Sending the list entry to the sender.
+            Text.get().send(Text.toMiniMessage(plugin.config().customItemsListEntry).replace("{number}", number.incrementAndGet() + "").replace("{item}", identifier), sender);
+        });
+        // Sending footer message to the sender.
+        Text.get().send(Text.toMiniMessage(plugin.config().customItemsListFooter), sender);
     }
+
+    @Command("nbtr register_item")
+    @CommandPermission("nbtr.command")
+    public void onRegisterItem(final @NotNull Player sender, final String identifier) {
+        final ItemStack item = sender.getInventory().getItemInMainHand();
+        // Checking whether the item exists and is not empty, and registering it.
+        if (item.isEmpty() == false)
+            plugin.getCustomItemRegistry().set(identifier, item);
+    }
+
+    @Command("nbtr give_item")
+    @CommandPermission("nbtr.command")
+    public void onGetItem(final @NotNull Player sender, final Player target, final String identifier) {
+        final @Nullable ItemStack item = plugin.getCustomItemRegistry().get(identifier);
+        // Checking whether the item exists and is not empty, and giving it to the target.
+        if (item != null && item.isEmpty() == false)
+            target.getInventory().addItem(item);
+    }
+
 }

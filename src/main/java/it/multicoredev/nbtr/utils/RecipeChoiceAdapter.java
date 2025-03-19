@@ -12,11 +12,12 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * BSD 3-Clause License
@@ -55,17 +56,18 @@ public final class RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice>
     public RecipeChoice deserialize(final @NotNull JsonElement json, final Type type, final JsonDeserializationContext context) throws JsonParseException {
         // Reading as single object.
         if (json.isJsonObject()) {
-            if (json.getAsJsonObject().get("material") != null) {
+            if (json.getAsJsonObject().get("material") != null || json.getAsJsonObject().get("registered_item") != null) {
                 final Item item = context.deserialize(json, Item.class);
                 // Throwing an exception if item validation fails.
                 if (!item.isValid())
                     throw new JsonParseException("Required property \"material\" does not exist.");
                 // Returning null if material was set to air. 1.20.5+ don't support air in recipes.
-                if (item.getMaterial() == Material.AIR)
+                if (item.getMaterial() == Material.AIR) {
                     return RecipeChoice.empty();
+                }
                 // Returning MaterialChoice if metadata is empty, or ExactChoice otherwise.
                 try {
-                    return (item.geNBT() == null && item.getComponents() == null && !item.toItemStack().hasItemMeta())
+                    return (item.getNBT() == null && item.getComponents() == null && !item.toItemStack().hasItemMeta())
                             ? new RecipeChoice.MaterialChoice(item.toItemStack().getType())
                             : new RecipeChoice.ExactChoice(item.toItemStack());
                 } catch (final IllegalArgumentException e) {
@@ -97,7 +99,7 @@ public final class RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice>
                 throw new JsonParseException("Required property \"material\" does not exist on one or more elements.");
             // Returning MaterialChoice if metadata of all items is empty, or ExactChoice otherwise.
             try {
-                return (items.stream().filter(RecipeChoiceAdapter::isNotAir).noneMatch(it -> it.geNBT() != null || it.getComponents() != null || it.toItemStack().hasItemMeta()))
+                return (items.stream().filter(RecipeChoiceAdapter::isNotAir).noneMatch(it -> it.getNBT() != null || it.getComponents() != null || it.toItemStack().hasItemMeta()))
                         ? new RecipeChoice.MaterialChoice(items.stream().filter(RecipeChoiceAdapter::isNotAir).map(Item::toItemStack).map(ItemStack::getType).collect(Collectors.toList()))
                         : new RecipeChoice.ExactChoice(items.stream().filter(RecipeChoiceAdapter::isNotAir).map(Item::toItemStack).collect(Collectors.toList()));
             } catch (final IllegalArgumentException e) {

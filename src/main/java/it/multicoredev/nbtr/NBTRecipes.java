@@ -1,30 +1,40 @@
 package it.multicoredev.nbtr;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 import it.multicoredev.mbcore.spigot.Text;
 import it.multicoredev.mclib.json.GsonHelper;
 import it.multicoredev.mclib.json.TypeAdapter;
 import it.multicoredev.nbtr.listeners.DiscoverTriggerListener;
 import it.multicoredev.nbtr.model.recipes.RecipeWrapper;
+import it.multicoredev.nbtr.registry.CustomItemRegistry;
 import it.multicoredev.nbtr.utils.MaterialAdapter;
 import it.multicoredev.nbtr.utils.RecipeChoiceAdapter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.Lamp;
+import revxrsal.commands.bukkit.BukkitLamp;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import org.jetbrains.annotations.NotNull;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 
 /**
  * BSD 3-Clause License
@@ -57,76 +67,95 @@ import java.util.stream.Stream;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+// TO-DO: Recipe Editor (GUI) (?)
 public class NBTRecipes extends JavaPlugin {
+
     private static final GsonHelper GSON = new GsonHelper(
             new TypeAdapter(Material.class, new MaterialAdapter()),
             new TypeAdapter(RecipeChoice.class, new RecipeChoiceAdapter())
     );
+
+    @Accessors(fluent = true)
+    @Getter(AccessLevel.PUBLIC)
     private Config config;
-    private final File recipesDir = new File(getDataFolder(), "recipes");
+
+    @Getter(AccessLevel.PUBLIC)
+    private static NBTRecipes instance;
+
+    @Getter(AccessLevel.PUBLIC)
+    private CustomItemRegistry customItemRegistry;
+
+    @Getter(AccessLevel.PUBLIC)
     private final List<RecipeWrapper> recipes = new ArrayList<>();
+
+    @Getter(AccessLevel.PUBLIC)
     private final List<NamespacedKey> registeredRecipes = new ArrayList<>();
-    private final Metrics metrics = new Metrics(this, 17319);
+
+    @Getter(AccessLevel.PUBLIC)
+    private Lamp<BukkitCommandActor> commands;
+
+    @Getter(AccessLevel.PUBLIC)
     private String namespace;
+
+    private final File recipesDir = new File(getDataFolder(), "recipes");
 
     private static final Pattern NAMESPACE_PATTERN = Pattern.compile("[a-z0-9._-]+$");
     private static final Pattern KEY_PATTERN = Pattern.compile("[a-z0-9/._-]+$");
 
-    //TODO Add recipe editor GUI ?
-
     @Override
     public void onEnable() {
+        // Updating the plugin instance.
+        instance = this;
         // Creating new instance of Text utility.
         Text.create(this);
+
+        // Creating new instance of CustomItemRegistry.
+        this.customItemRegistry = new CustomItemRegistry(this);
+        // Reloading the plugin, and disabling it if something goes wrong.
+        if (onReload() == false)
+            this.getServer().getPluginManager().disablePlugin(this);
+        // Registering event listeners.
+        this.getServer().getPluginManager().registerEvents(new DiscoverTriggerListener(this), this);
+        // Initializing Lamp.
+        this.commands = BukkitLamp.builder(this).build();
+        // Registering command(s).
+        this.commands.register(new NBTRCommand(this));
+        // Starting bStats...
+        new Metrics(this, 17319);
+    }
+
+    public boolean onReload() {
         // Reloading plugin configuration.
         try {
-            if (!getDataFolder().exists() || !getDataFolder().isDirectory()) {
-                if (!getDataFolder().mkdirs()) throw new IOException("Cannot create plugin folder");
-            }
-
-            if (!recipesDir.exists() || !recipesDir.isDirectory()) {
-                if (!recipesDir.mkdirs()) throw new IOException("Cannot create recipes folder");
-            }
-
+            if (recipesDir.isDirectory() == false)
+                throw new IOException("File \"" + recipesDir.getAbsolutePath() + "\" is not a directory.");
+            // Creating the "plugins/NBTRecipes/recipes" directory.
+            if (recipesDir.exists() == false && recipesDir.mkdirs() == false)
+                throw new IOException("Failed to create \"" + recipesDir.getAbsolutePath() + "\" directory.");
+            // Loading the configuration.
             config = GSON.autoload(new File(getDataFolder(), "config.json"), new Config().init(), Config.class);
-        } catch (IOException e) {
+        } catch (final IOException e) {
+            // Printing the stack trace.
             e.printStackTrace();
-            onDisable();
-            return;
+            // Returning...
+            return false;
         }
         // Getting the configured plugin namespace that will be used for recipe registration.
-        namespace = getNamespace();
+        this.namespace = initializeNamespace();
+        // Refreshing the custom item registry.
+        customItemRegistry.refresh();
+        // Unregistering all plugin-defined recipes.
+        registeredRecipes.removeIf(getServer()::removeRecipe);
+        // Clearing the list of recipes.
+        recipes.clear();
         // Loading recipes.
         loadRecipes(recipesDir);
-        getLogger().info("Loaded " + recipes.size() + " recipes.");
-        // Registering recipes.
+        // Registering the recipes.
         registerRecipes();
-        // Registering events.
-        getServer().getPluginManager().registerEvents(new DiscoverTriggerListener(this), this);
-        // Registering command(s).
-        NBTRCommand cmd = new NBTRCommand(this);
-        getCommand("nbtr").setExecutor(cmd);
-        getCommand("nbtr").setTabCompleter(cmd);
-    }
-
-    @Override
-    public void onDisable() {
-        // Unregistering and clearing recipes.
-        registeredRecipes.forEach(getServer()::removeRecipe);
-        registeredRecipes.clear();
-        recipes.clear();
-        // Unregistering events.
-        HandlerList.unregisterAll(this);
-        // Destroying Text utility.
-        Text.destroy();
-    }
-
-    public Config config() {
-        return config;
-    }
-
-    public List<RecipeWrapper> getRecipes() {
-        return recipes;
+        // Sending information to the console.
+        getLogger().info("Registered " + registeredRecipes.size() + " our of " + recipes.size() + " recipes.");
+        // Returning...
+        return true;
     }
 
     private void loadRecipes(File dir) {
@@ -138,21 +167,20 @@ public class NBTRecipes extends JavaPlugin {
         }
         // Sorting and iterating through files in natural order to ensure that they are loaded in the same order every time.
         for (final File file : Stream.of(files).sorted(Comparator.naturalOrder()).toList()) {
-            if (file.isDirectory()) {
+            if (file.isDirectory() == true)
                 loadRecipes(file);
-            } else {
-                if (!file.getName().toLowerCase().endsWith(".json")) continue;
-
+            else if (file.getName().toLowerCase().endsWith(".json") == true) {
                 try {
-                    RecipeWrapper recipe = GSON.load(file, RecipeWrapper.class);
-                    if (recipe == null) continue;
-                    if (!recipe.isValid()) {
+                    final RecipeWrapper recipe = GSON.load(file, RecipeWrapper.class);
+                    if (recipe == null || recipe.isValid() == false) {
                         getLogger().warning("Recipe \"" + file.getName() + "\" is invalid.");
                         continue;
                     }
+                    // Initializing the recipe.
                     recipe.init(getNamespacedKey(file));
+                    // Adding the recipe to the list.
                     recipes.add(recipe);
-                } catch (Exception e) {
+                } catch (final IOException | JsonParseException | IllegalArgumentException | IllegalStateException e) {
                     getLogger().severe("Loading of recipe \"" + file.getName() + "\" failed due to following error(s):");
                     getLogger().severe(" (1) "  + e.getClass().getSimpleName() + ": " + e.getMessage());
                     if (e.getCause() != null)
@@ -164,23 +192,20 @@ public class NBTRecipes extends JavaPlugin {
 
     private void registerRecipes() {
         recipes.forEach(recipe -> {
-            try {
-                // Support for overriding vanilla commands. Config namespace must be set to "minecraft" for that to work.
-                if (recipe.getKey().getNamespace().equals("minecraft") && getServer().getRecipe(recipe.getKey()) != null) {
-                    // Removing the original recipe. It won't be added back until the server restart or "minecraft:reload" command is executed.
-                    getServer().removeRecipe(recipe.getKey());
-                    // Sending information to the console.
-                    getLogger().warning("Recipe \"" + recipe.getKey().toString() + "\" is now overriding vanilla recipe with the same key.");
-                }
-                getServer().addRecipe(recipe.toBukkit());
-                registeredRecipes.add(recipe.getKey());
-            } catch (Exception e) {
-                getLogger().severe("Registration of recipe \"" + recipe.getKey() + "\" failed due to following error(s):");
-                getLogger().severe(" (1) "  + e.getClass().getSimpleName() + ": " + e.getMessage());
-                if (e.getCause() != null)
-                    getLogger().severe(" (2) " + e.getCause().getClass().getSimpleName() + ": " + e.getCause().getMessage());
+            // Support for overriding vanilla commands. Config namespace must be set to "minecraft" for that to work.
+            if (recipe.getKey().getNamespace().equals("minecraft") && getServer().getRecipe(recipe.getKey()) != null) {
+                // Removing the original recipe. It won't be added back until the server restart or "minecraft:reload" command is executed.
+                getServer().removeRecipe(recipe.getKey());
+                // Sending information to the console.
+                getLogger().warning("Recipe \"" + recipe.getKey().toString() + "\" is now overriding vanilla recipe with the same key.");
             }
+            // Registering the recipe.
+            this.getServer().addRecipe(recipe.toBukkit(), false);
+            // Adding the recipe key to the list of registered recipes.
+            registeredRecipes.add(recipe.getKey());
         });
+        // Updating recipes.
+        this.getServer().updateRecipes();
     }
 
     // Returns NamespacedKey from configured namespace and relative path of specified file.
@@ -190,7 +215,7 @@ public class NBTRecipes extends JavaPlugin {
     }
 
     // Returns configured namespace or, in case it's invalid, lower-case plugin name.
-    private @NotNull String getNamespace() throws IllegalArgumentException {
+    private @NotNull String initializeNamespace() throws IllegalArgumentException {
         // Returning a configured namespace, or in case it's unspecified, lower-case plugin name.
         if (config().namespace == null)
             return getName().toLowerCase(Locale.ROOT);
