@@ -15,6 +15,10 @@ import org.bukkit.inventory.Recipe;
 
 import java.util.Arrays;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * BSD 3-Clause License
  * <p>
@@ -49,9 +53,13 @@ import java.util.Arrays;
 @JsonAdapter(RecipeWrapper.Adapter.class)
 public abstract class RecipeWrapper {
     protected String type;
+
     @SerializedName("discover")
+    @Getter(AccessLevel.PUBLIC)
     protected DiscoverTrigger discoverTrigger;
-    protected transient NamespacedKey namespacedKey;
+
+    @Getter(AccessLevel.PUBLIC)
+    protected transient NamespacedKey key;
 
     public RecipeWrapper(Type type) {
         this.type = type.getType();
@@ -61,22 +69,17 @@ public abstract class RecipeWrapper {
         return Type.getFromString(type);
     }
 
-    public DiscoverTrigger getDiscoverTrigger() {
-        return discoverTrigger;
-    }
-
     public void init(NamespacedKey namespacedKey) {
-        this.namespacedKey = namespacedKey;
+        this.key = namespacedKey;
     }
 
-    public NamespacedKey getKey() {
-        return namespacedKey;
-    }
-
+    /** Converts this {@link RecipeWrapper} to Bukkit's {@link Recipe} object. */
     public abstract Recipe toBukkit();
 
+    /** Returns {@code true} if this recipe is valid. */
     public abstract boolean isValid();
 
+    @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
     public enum Type {
         SHAPED("crafting_shaped", ShapedRecipeWrapper.class),
         SHAPELESS("crafting_shapeless", ShapelessRecipeWrapper.class),
@@ -87,24 +90,14 @@ public abstract class RecipeWrapper {
         SMITHING_RECIPE("smithing", SmithingRecipeWrapper.class),
         STONECUTTING_RECIPE("stonecutting", StonecuttingRecipeWrapper.class);
 
+        @Getter(AccessLevel.PUBLIC)
         private final String type;
-        private final Class<? extends RecipeWrapper> clazz;
+
+        @Getter(AccessLevel.PUBLIC)
+        private final Class<? extends RecipeWrapper> recipeClass;
 
         // This can be cached as enums don't change in the runtime.
         private static final String[] TYPES = Arrays.stream(Type.values()).map(Type::getType).toArray(String[]::new);
-
-        Type(String type, Class<? extends RecipeWrapper> clazz) {
-            this.type = type;
-            this.clazz = clazz;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public Class<? extends RecipeWrapper> getRecipeClass() {
-            return clazz;
-        }
 
         public static Type getFromString(String type) {
             for (Type t : Type.values()) {
@@ -122,7 +115,7 @@ public abstract class RecipeWrapper {
 
     }
 
-    public static class Adapter implements JsonSerializer<RecipeWrapper>, JsonDeserializer<RecipeWrapper> {
+    public static final class Adapter implements JsonSerializer<RecipeWrapper>, JsonDeserializer<RecipeWrapper> {
 
         @Override
         public RecipeWrapper deserialize(JsonElement json, java.lang.reflect.Type type, JsonDeserializationContext ctx) throws JsonParseException {
@@ -141,5 +134,7 @@ public abstract class RecipeWrapper {
         public JsonElement serialize(RecipeWrapper recipe, java.lang.reflect.Type type, JsonSerializationContext ctx) {
             return ctx.serialize(recipe, type);
         }
+
     }
+
 }

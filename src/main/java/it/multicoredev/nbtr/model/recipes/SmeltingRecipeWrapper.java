@@ -33,7 +33,7 @@ import org.bukkit.inventory.FurnaceRecipe;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class SmeltingRecipeWrapper extends FurnaceRecipeWrapper {
+public final class SmeltingRecipeWrapper extends FurnaceRecipeWrapper {
 
     public SmeltingRecipeWrapper() {
         super(Type.SMELTING);
@@ -41,15 +41,15 @@ public class SmeltingRecipeWrapper extends FurnaceRecipeWrapper {
 
     @Override
     public FurnaceRecipe toBukkit() {
-        if (experience == null || experience < 0) experience = 0f;
-        if (cookingTime == null || cookingTime < 0) cookingTime = 200;
+        if (super.experience == null || super.experience < 0) super.experience = 0f;
+        if (super.cookingTime == null || super.cookingTime < 0) super.cookingTime = 200;
 
         return new FurnaceRecipe(
-                namespacedKey,
-                result.toItemStack(),
-                input,
-                experience,
-                cookingTime
+                super.key,
+                super.result.toItemStack(),
+                super.input,
+                super.experience,
+                super.cookingTime
         );
     }
 }

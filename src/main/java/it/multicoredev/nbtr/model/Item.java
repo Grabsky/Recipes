@@ -1,12 +1,9 @@
 package it.multicoredev.nbtr.model;
 
 import com.google.gson.annotations.SerializedName;
-import it.multicoredev.mbcore.spigot.Text;
 import it.multicoredev.nbtr.NBTRecipes;
-import it.multicoredev.nbtr.utils.ChatFormat;
-import it.multicoredev.nbtr.utils.VersionUtils;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -114,14 +111,10 @@ public final class Item {
             final ItemMeta meta = item.getItemMeta();
             // Setting name if specified.
             if (name != null)
-                if (VersionUtils.isPaper && ChatFormat.containsMiniMessage(name))
-                    meta.displayName(Text.deserialize(name));
-                else meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
+                meta.displayName(MiniMessage.miniMessage().deserialize(name));
             // Setting lore if specified.
             if (lore != null)
-                if (VersionUtils.isPaper && ChatFormat.containsMiniMessage(lore))
-                    meta.lore(lore.stream().map(Text::deserialize).toList());
-                else meta.setLore(lore.stream().map(line -> ChatColor.translateAlternateColorCodes('&', line)).toList());
+                meta.lore(lore.stream().map(line -> MiniMessage.miniMessage().deserialize(line)).toList());
             // Updating item meta.
             item.setItemMeta(meta);
         }

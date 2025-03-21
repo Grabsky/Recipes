@@ -45,7 +45,7 @@ public class StonecuttingRecipeWrapper extends RecipeWrapper {
 
     @Override
     public StonecuttingRecipe toBukkit() {
-        return new StonecuttingRecipe(namespacedKey, result.toItemStack(), input);
+        return new StonecuttingRecipe(super.key, result.toItemStack(), input);
     }
 
     @Override

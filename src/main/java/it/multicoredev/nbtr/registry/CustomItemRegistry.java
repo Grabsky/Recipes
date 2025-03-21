@@ -6,6 +6,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.multicoredev.nbtr.NBTRecipes;
 import org.bukkit.inventory.ItemStack;
+import revxrsal.commands.autocomplete.SuggestionProvider;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
+import revxrsal.commands.node.ExecutionContext;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -15,8 +18,11 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Base64;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,13 +45,17 @@ public final class CustomItemRegistry {
     private transient final Map<String, ItemStack> registry = new HashMap<>();
 
     // Represents the Gson instance used for (de)serialization.
-    private static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().disableHtmlEscaping().create();
+    private static final Gson GSON = new GsonBuilder()
+            .disableHtmlEscaping()
+            .setPrettyPrinting()
+            .setLenient()
+            .create();
 
     // Represents the internal type of the map. Used for (de)serialization.
     private static final Type MAP_TYPE = new TypeToken<Map<String, String>>() {}.getType();
 
-    private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder();
-    private static final Base64.Decoder BASE64_DECODER = Base64.getDecoder();
+    // Represents the pattern used to validate identifiers.
+    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("[a-zA-Z0-9_\\-]+");
 
     public void refresh() {
         final File file = new File(plugin.getDataFolder(), "item_registry.json");
@@ -83,29 +93,72 @@ public final class CustomItemRegistry {
         // Deserializing items defined as bytes to ItemStack objects.
         internalMap.forEach((identifier, encoded) -> {
             // Decoding the bytes through the Base64 encoder.
-            final byte[] decoded = BASE64_DECODER.decode(encoded.getBytes(StandardCharsets.UTF_8));
+            final byte[] decoded = Base64.getDecoder().decode(encoded.getBytes(StandardCharsets.UTF_8));
             // Deserializing the bytes to an ItemStack object.
             registry.put(identifier, ItemStack.deserializeBytes(decoded));
         });
     }
 
     /** Returns the {@link ItemStack} object associated with the given identifier. */
-    public @Nullable ItemStack get(final String identifier) {
+    public @Nullable ItemStack get(final @NotNull String identifier) {
         return registry.get(identifier);
     }
 
-    /** Sets the {@link ItemStack} object to be associated with the given identifier. */
-    public void set(final String identifier, final ItemStack item) {
+    /**
+     * Sets the {@link ItemStack} object to be associated with the given identifier.
+     * Returns {@code true} if the identifier is valid and the item was successfully registered, {@code false} otherwise.
+     */
+    public boolean set(final @NotNull String identifier, final @NotNull ItemStack item) {
+        // Checking whether the identifier is valid.
+        if (IDENTIFIER_PATTERN.matcher(identifier).matches() == false)
+            return false;
+        // Setting the ItemStack's amount to 1.
+        item.setAmount(1);
         // Encoding the bytes through the Base64 encoder.
-        final String bytes = new String(BASE64_ENCODER.encode(item.serializeAsBytes()), StandardCharsets.UTF_8);
+        final String bytes = new String(Base64.getEncoder().encode(item.serializeAsBytes()), StandardCharsets.UTF_8);
         // Putting the encoded bytes in the internal map.
         internalMap.put(identifier, bytes);
         // Refreshing the registry...
         refresh();
+        // Returning...
+        return true;
+    }
+
+    /**
+     * Removes the {@link ItemStack} object associated with the given identifier.
+     * Returns {@code true} if item was successfully removed, {@code false} otherwise.
+     */
+    public boolean remove(final @NotNull String identifier) {
+        // Checking whether the identifier is valid.
+        if (internalMap.containsKey(identifier) == false)
+            return false;
+        // Removing entry form the internal map.
+        internalMap.remove(identifier);
+        // Refreshing the registry...
+        refresh();
+        // Returning...
+        return true;
+    }
+
+    public @NotNull @Unmodifiable Collection<String> allKeys() {
+        return Collections.unmodifiableCollection(registry.keySet());
     }
 
     public @NotNull @Unmodifiable Map<String, ItemStack> all() {
         return ImmutableMap.copyOf(registry);
+    }
+
+
+    /* COMMAND SUGGESTION PROVIDER */
+
+    public enum Suggestions implements SuggestionProvider<BukkitCommandActor> {
+        INSTANCE; // SINGLETON
+
+        @Override
+        public @NotNull Collection<String> getSuggestions(final @NotNull ExecutionContext<BukkitCommandActor> executionContext) {
+            return NBTRecipes.getInstance().getCustomItemRegistry().allKeys();
+        }
+
     }
 
 }

@@ -1,10 +1,10 @@
 package it.multicoredev.nbtr.model.recipes;
 
 import it.multicoredev.nbtr.model.Item;
-import it.multicoredev.nbtr.utils.SmithingRecipeGenerator;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.SmithingRecipe;
+import org.bukkit.inventory.SmithingTransformRecipe;
 
 /**
  * BSD 3-Clause License
@@ -50,8 +50,8 @@ public class SmithingRecipeWrapper extends RecipeWrapper {
     @Override
     public SmithingRecipe toBukkit() {
         return (Bukkit.getUnsafe().getProtocolVersion() >= 763)
-                ? SmithingRecipeGenerator.newSmithingRecipe(namespacedKey, result.toItemStack(), template, base, addition)
-                : new SmithingRecipe(namespacedKey, result.toItemStack(), base, addition);
+                ? new SmithingTransformRecipe(super.key, result.toItemStack(), template, base, addition)
+                : new SmithingRecipe(super.key, result.toItemStack(), base, addition);
     }
 
     @Override

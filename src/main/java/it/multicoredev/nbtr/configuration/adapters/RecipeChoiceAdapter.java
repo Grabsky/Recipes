@@ -1,4 +1,4 @@
-package it.multicoredev.nbtr.utils;
+package it.multicoredev.nbtr.configuration.adapters;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -50,7 +50,8 @@ import org.jetbrains.annotations.NotNull;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-public final class RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice> {
+public enum RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice> {
+    INSTANCE; // SINGLETON
 
     @Override
     public RecipeChoice deserialize(final @NotNull JsonElement json, final Type type, final JsonDeserializationContext context) throws JsonParseException {

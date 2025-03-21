@@ -41,15 +41,15 @@ public class SmokingRecipeWrapper extends FurnaceRecipeWrapper {
 
     @Override
     public SmokingRecipe toBukkit() {
-        if (experience == null || experience < 0) experience = 0f;
-        if (cookingTime == null || cookingTime < 0) cookingTime = 200;
+        if (super.experience == null || super.experience < 0) super.experience = 0f;
+        if (super.cookingTime == null || super.cookingTime < 0) super.cookingTime = 200;
 
         return new SmokingRecipe(
-                namespacedKey,
-                result.toItemStack(),
-                input,
-                experience,
-                cookingTime
+                super.key,
+                super.result.toItemStack(),
+                super.input,
+                super.experience,
+                super.cookingTime
         );
     }
 }

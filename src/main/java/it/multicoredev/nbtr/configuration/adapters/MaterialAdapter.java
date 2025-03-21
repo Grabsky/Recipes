@@ -1,15 +1,24 @@
-package it.multicoredev.nbtr.utils;
+package it.multicoredev.nbtr.configuration.adapters;
 
-import org.bukkit.NamespacedKey;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.RecipeChoice;
-import org.bukkit.inventory.SmithingRecipe;
-import org.bukkit.inventory.SmithingTransformRecipe;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import org.bukkit.Material;
+
+import java.lang.reflect.Type;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * BSD 3-Clause License
  * <p>
  * Copyright (c) 2023, Lorenzo Magni
+ * All rights reserved.
  * <p>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,9 +45,17 @@ import org.bukkit.inventory.SmithingTransformRecipe;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class SmithingRecipeGenerator {
+public enum MaterialAdapter implements JsonSerializer<Material>, JsonDeserializer<Material> {
+    INSTANCE; // SINGLETON
 
-    public static SmithingRecipe newSmithingRecipe(NamespacedKey namespacedKey, ItemStack result, RecipeChoice template, RecipeChoice base, RecipeChoice addition) {
-        return new SmithingTransformRecipe(namespacedKey, result, template, base, addition);
+    @Override
+    public @Nullable JsonElement serialize(final @Nullable Material value, final @NotNull Type type, final @NotNull JsonSerializationContext context) {
+        return (value != null) ? new JsonPrimitive(value.getKey().asString()) : null;
     }
+
+    @Override
+    public @Nullable Material deserialize(final @NotNull JsonElement json, final @NotNull Type type, final @NotNull JsonDeserializationContext context) throws JsonParseException {
+        return (json.isJsonPrimitive() == true) ? Material.matchMaterial(json.getAsString()) : null;
+    }
+
 }

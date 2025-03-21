@@ -1,6 +1,6 @@
 plugins {
     id("java-library")
-    id("de.eldoria.plugin-yml.bukkit") version "0.7.1"
+    id("de.eldoria.plugin-yml.paper") version "0.7.1"
     id("com.gradleup.shadow") version "8.3.5"
 }
 
@@ -21,12 +21,12 @@ dependencies {
     // Paper API
     compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
     // Libraries
-    implementation("it.multicoredev.mbcore.spigot:MBCore-spigot:8.0.0")
     implementation("it.multicoredev.mclib:MCLib-Configurations:1.7.2.6")
     // Lamp (Command Framework)
     implementation("io.github.revxrsal:lamp.common:4.0.0-rc.9")
     implementation("io.github.revxrsal:lamp.bukkit:4.0.0-rc.9")
-    // bStats
+    implementation("io.github.revxrsal:lamp.brigadier:4.0.0-rc.9")
+    // bStats (Metrics)
     implementation("org.bstats:bstats-bukkit:3.0.2")
 }
 
@@ -34,7 +34,6 @@ tasks {
     shadowJar {
         shadowJar.archiveFileName = "${rootProject.name}-${project.version}.jar"
         relocate("org.bstats", "it.multicoredev.nbtr.bstats")
-        relocate("t.multicoredev.mbcore", "it.multicoredev.nbtr.mbcore")
         relocate("t.multicoredev.mclib", "it.multicoredev.nbtr.mclib")
     }
     compileJava {
@@ -47,7 +46,7 @@ tasks {
 }
 
 
-bukkit {
+paper {
     main = "it.multicoredev.nbtr.NBTRecipes"
     apiVersion = "1.20"
     authors = ["LoreSchaeffer"]

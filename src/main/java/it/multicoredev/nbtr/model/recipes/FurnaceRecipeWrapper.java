@@ -40,6 +40,7 @@ public abstract class FurnaceRecipeWrapper extends RecipeWrapper {
     protected RecipeChoice input;
     protected Item result;
     protected Float experience;
+
     @SerializedName("cooking_time")
     protected Integer cookingTime;
 

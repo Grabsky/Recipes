@@ -33,7 +33,7 @@ import org.bukkit.inventory.CampfireRecipe;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class CampfireRecipeWrapper extends FurnaceRecipeWrapper {
+public final class CampfireRecipeWrapper extends FurnaceRecipeWrapper {
 
     public CampfireRecipeWrapper() {
         super(Type.CAMPFIRE);
@@ -41,9 +41,9 @@ public class CampfireRecipeWrapper extends FurnaceRecipeWrapper {
 
     @Override
     public CampfireRecipe toBukkit() {
-        if (experience == null || experience < 0) experience = 0f;
-        if (cookingTime == null || cookingTime < 0) cookingTime = 200;
+        if (super.experience == null || super.experience < 0) super.experience = 0f;
+        if (super.cookingTime == null || super.cookingTime < 0) super.cookingTime = 200;
 
-        return new CampfireRecipe(namespacedKey, result.toItemStack(), input, experience, cookingTime);
+        return new CampfireRecipe(super.key, super.result.toItemStack(), super.input, super.experience, super.cookingTime);
     }
 }

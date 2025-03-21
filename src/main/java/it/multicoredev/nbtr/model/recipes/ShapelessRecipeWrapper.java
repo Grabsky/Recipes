@@ -38,7 +38,7 @@ import java.util.Objects;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class ShapelessRecipeWrapper extends RecipeWrapper {
+public final class ShapelessRecipeWrapper extends RecipeWrapper {
     private List<RecipeChoice> ingredients;
     private Item result;
 
@@ -48,7 +48,7 @@ public class ShapelessRecipeWrapper extends RecipeWrapper {
 
     @Override
     public ShapelessRecipe toBukkit() {
-        ShapelessRecipe recipe = new ShapelessRecipe(namespacedKey, result.toItemStack());
+        ShapelessRecipe recipe = new ShapelessRecipe(super.key, result.toItemStack());
 
         ingredients.forEach(recipe::addIngredient);
 
