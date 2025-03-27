@@ -51,7 +51,7 @@ Description of recipe components and their capabilities.
 
 ### 2.1. Item
 Item is an object that represents an item in the recipes. It can be used as an ingredient, input or as a result.
-Majority of fields are optional; in fact, the only one required is the `material`.
+Majority of fields are optional; in fact, only either `material` or `registered_item` is required.
 
 ### 2.2. Tag
 Tags, specifically material tags, may be described as groups of materials. They're an actual vanilla feature and are commonly referenced in various parts of the game.
@@ -59,7 +59,7 @@ Tags, specifically material tags, may be described as groups of materials. They'
 They can be used in all ingredient or input slots, but cannot be mixed together with different choice types.
 When the input field of a smelting recipe is set to tag `mincraft:boats` and result is set to `coal_block`, this allows all types of boats to be smelted into a block of coal.
 
-Please note that some tags, including those added or modified by datapacks, may not work due to API limitations.
+Please note that some tags, including those added or modified by data-packs, may not work due to API limitations.
 
 ### 2.3. Choice
 Choice represents set of items **or** a tag, which can be used in a specific ingredient or input slot.
@@ -82,8 +82,8 @@ Can be used to select individual items (or registered items), or multiple items 
   { "material": "minecraft:stone" },
   { "material": "minecraft:cobblestone" }
 ]
+```
 ```json5
-// Items must be registered using the `/nbtrecipes register_item` command.
 // Registered items and normal items can be mixed together.
 "input": [
   { "material": "minecraft:cod" },
