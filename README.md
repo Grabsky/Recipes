@@ -10,6 +10,9 @@ Format is very similar to the one used by data-packs.
 
 <br />
 
+## Requirements
+Plugin requires **[Paper](https://papermc.io/software/paper)** or **[Folia](https://papermc.io/software/folia)** based server and **Java 21** or higher.
+
 ## Usage
 You can place your recipes inside the `recipes` folder, or any sub-folder within this directory. Plugin automatically search them recursively and add their relative path to the recipe key.
 
@@ -19,13 +22,27 @@ To add a new recipe just create a text file with the `.json` extension and edit 
 In the config you can change the namespace of your recipes and all the messages of the plugin.
 The namespace can only contain the following characters: `a-z`, `0-9`, `_`, `-`, `/`.
 
-Legacy formatting (`&`, `§`) is deprecated and planned to be removed in the future. Please use [MiniMessage](https://docs.advntr.dev/minimessage/format) instead.
+Legacy color codes are not supported. Please use [MiniMessage](https://docs.advntr.dev/minimessage/format) for text formatting.
 
 ### 1.2. Commands
-* `/nbtrecipes reload` - Reloads the recipes and the config file.
-  * `nbtr.command` Permission needed to use the command.
-* `/nbtrecipes list` - Lists all the recipes added by this plugin.
-  * `nbtr.command` Permission needed to use the command.
+* **`/nbtrecipes reload`**
+  * Reloads recipes, items and the configuration file.
+  * Permission: `nbtr.command.reload`
+* **`/nbtrecipes list_recipes`**
+  * Lists all recipes added by this plugin.
+  * Permission: `nbtr.command.list_recipes`
+* **`/nbtrecipes list_items`**
+  * Lists all registered custom items.
+  * Permission: `nbtr.command.list_items`
+* **`/nbtrecipes register_item (identifier)`**
+  * Registers custom item that is currently held in the main hand.
+  * Permission: `nbtr.command.register_item`
+* **`/nbtrecipes unregister_item (identifier)`**
+  * Unregisters custom item with the given identifier.
+  * Permission: `nbtr.command.unregister_item`
+* **`/nbtrecipes give_item (target) (identifier) [amount]`**
+  * Gives specified custom item to the target.
+  * Permission: `nbtr.command.give_item`
 
 <br />
 
@@ -52,14 +69,30 @@ Most ingredient or input slots are expected to consist of exactly one choice, wh
 Please refer to [Examples](#examples) section below for more details.
 
 #### 2.3.1. Item(s) Choice
-Can be used to select individual items, or multiple items defined as an array. If no elements have metadata specified (nbt, name, lore), the recipe will compare items based on their material.
+Can be used to select individual items (or registered items), or multiple items defined as an array. If no elements have metadata specified (nbt, name, lore), the recipe will compare items based on their material.
 ```json5
 "input": { "material": "minecraft:iron_axe", "nbt": "{Damage:157}" }
+```
+```json5
+// Item 'ruby' must be registered using the `/nbtrecipes register_item` command.
+"input": { "registered_item": "ruby" }
 ```
 ```json5
 "input": [
   { "material": "minecraft:stone" },
   { "material": "minecraft:cobblestone" }
+]
+```json5
+// Items must be registered using the `/nbtrecipes register_item` command.
+// Registered items and normal items can be mixed together.
+"input": [
+  { "material": "minecraft:cod" },
+  { "material": "minecraft:salmon" },
+  { "registered_item": "raw_mackerel" },
+  { "registered_item": "raw_shrimp" },
+  { "registered_item": "raw_tuna" },
+  { "registered_item": "raw_carp" },
+  { "registered_item": "raw_koi" },
 ]
 ```
 #### 2.3.2. Tag Choice
