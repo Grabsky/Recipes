@@ -1,12 +1,17 @@
-# NBTRecipes
-<a href="https://modrinth.com/plugin/nbtrecipes/"><img alt="modrinth" height="44" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_vector.svg"></a>
-<a href="https://www.spigotmc.org/resources/nbtrecipes.107230/"><img alt="spigotmc" height="44" src="badges/spigotmc_vector.svg"></a>
-<a href="https://hangar.papermc.io/LoreSchaeffer/NBTRecipes"><img alt="hangar" height="44" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/hangar_vector.svg"></a>
-<a href="https://legacy.curseforge.com/minecraft/bukkit-plugins/nbtrecipes"><img alt="curseforge" height="44" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/curseforge_vector.svg"></a>
+<div align="center">
 
-Plugin designed to simplify creation of custom recipes, without the need writing any code or touching data-packs.
-You can attach common metadata (amount, name, lore) as well as NBT tags to items processed by the recipes.
-Format is very similar to the one used by data-packs.
+# Recipes
+
+<!-- [![GitHub Release](https://img.shields.io/github/v/release/Grabsky/Recipes?logo=github&labelColor=%2324292F&color=%23454F5A)](https://github.com/Grabsky/Recipes/releases/latest) -->
+[![Modrinth Downloads](https://img.shields.io/modrinth/dt/recipes?logo=modrinth&logoColor=white&label=downloads&labelColor=%23139549&color=%2318c25f)](https://modrinth.com/plugin/recipes.)
+[![Discord](https://img.shields.io/discord/1366851451208601783?cacheSeconds=3600&logo=discord&logoColor=white&label=%20&labelColor=%235865F2&color=%23707BF4)](https://discord.com/invite/PuzqF2Yd5q)
+[![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/Grabsky/Recipes?logo=codefactor&logoColor=white&label=%20)](https://www.codefactor.io/repository/github/grabsky/recipes/issues/main)
+
+**Recipes** is a plugin that allows to create new, or override existing recipes using format similar to one used by data-packs.
+
+<sup>This is a maintained fork of **[LoreSchaeffer/NBTRecipes](https://github.com/LoreSchaeffer/NBTRecipes/)** which brings a bunch of fixes and new features.</sup>
+
+</div>
 
 <br />
 
