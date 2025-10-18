@@ -1,0 +1,43 @@
+name: Build & Release (Dispatch)
+
+on: [workflow_dispatch]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Setup Java 21
+      - name: JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+      # Setup Gradle
+      - name: Gradle
+        uses: gradle/actions/setup-gradle@v4
+      # Build
+      - name: Build
+        run: ./gradlew clean build --no-daemon
+      # Expose Release & Tag
+      - name: Expose Release & Tag
+        run: |
+          echo "PROJECT_RELEASE=$(./gradlew getRelease --quiet --no-rebuild --no-daemon)" >> $GITHUB_ENV
+          echo "PROJECT_TAG=$(./gradlew getTag --quiet --no-rebuild --no-daemon)" >> $GITHUB_ENV
+      # Upload Artifacts
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: build/libs
+      # Publish Release
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          # Configuring release name and tag.
+          name: ${{ env.PROJECT_RELEASE }}
+          tag_name: ${{ env.PROJECT_TAG }}
+          # Configuring files that are attached to the release.
+          files: "build/libs/Recipes-*.jar"
