@@ -30,20 +30,20 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr;
+package cloud.grabsky.recipes;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
-import it.multicoredev.nbtr.command.RecipesCommand;
-import it.multicoredev.nbtr.configuration.PluginConfiguration;
-import it.multicoredev.nbtr.configuration.adapters.MaterialAdapter;
-import it.multicoredev.nbtr.configuration.adapters.RecipeChoiceAdapter;
-import it.multicoredev.nbtr.listeners.DiscoverTriggerListener;
-import it.multicoredev.nbtr.model.recipes.RecipeWrapper;
-import it.multicoredev.nbtr.registry.CustomItemRegistry;
+import cloud.grabsky.recipes.command.RecipesCommand;
+import cloud.grabsky.recipes.configuration.PluginConfiguration;
+import cloud.grabsky.recipes.configuration.adapters.MaterialAdapter;
+import cloud.grabsky.recipes.configuration.adapters.RecipeChoiceAdapter;
+import cloud.grabsky.recipes.listeners.DiscoverTriggerListener;
+import cloud.grabsky.recipes.model.recipes.RecipeWrapper;
+import cloud.grabsky.recipes.registry.CustomItemRegistry;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -86,7 +86,7 @@ import lombok.experimental.Accessors;
 // TO-DO: Recipe Editor (GUI) (?)
 // TO-DO: Improve performance by skipping recipes that are already registered and have not changed.
 @Accessors(fluent = true)
-public class NBTRecipes extends JavaPlugin {
+public class Recipes extends JavaPlugin {
 
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(Material.class, MaterialAdapter.INSTANCE)
@@ -96,7 +96,7 @@ public class NBTRecipes extends JavaPlugin {
             .create();
 
     @Getter(AccessLevel.PUBLIC)
-    private static NBTRecipes instance;
+    private static Recipes instance;
 
     @Getter(AccessLevel.PUBLIC)
     private File configurationFile;
@@ -155,7 +155,7 @@ public class NBTRecipes extends JavaPlugin {
         instance = this;
         // Checking whether the plugin is running on a development build and displaying a warning message accordingly.
         if (this.getPluginMeta().getVersion().endsWith("-SNAPSHOT") == true)
-            this.getLogger().warning("You're running a development build of NBTRecipes. Keep in mind that it may contain bugs and compatibility issues.");
+            this.getLogger().warning("You're running a development build of Recipes. Keep in mind that it may contain bugs and compatibility issues.");
         // Checking whether the server is running Folia and displaying a warning message accordingly.
         if (isFolia == true)
             this.getLogger().severe("Looks like you're using Folia. While the plugin should technically support it, due to the experimental state of this software some things may not work as expected. Make sure to report any issues to our issue tracker on GitHub.");
@@ -169,7 +169,7 @@ public class NBTRecipes extends JavaPlugin {
         // Initializing Lamp.
         this.lamp = BukkitLamp.builder(this)
                 // Registering @Dependency dependencies.
-                .dependency(NBTRecipes.class, this)
+                .dependency(Recipes.class, this)
                 // Registering command response handler for String object.
                 .responseHandler(String.class, (value, context) -> {
                     // Forwarding returned message to the command sender.

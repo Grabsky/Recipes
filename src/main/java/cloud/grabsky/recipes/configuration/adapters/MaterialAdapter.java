@@ -30,27 +30,33 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr.model.recipes;
+package cloud.grabsky.recipes.configuration.adapters;
 
-import org.bukkit.inventory.BlastingRecipe;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import org.bukkit.Material;
 
-public final class BlastingRecipeWrapper extends FurnaceRecipeWrapper {
+import java.lang.reflect.Type;
 
-    public BlastingRecipeWrapper() {
-        super(Type.BLASTING);
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+public enum MaterialAdapter implements JsonSerializer<Material>, JsonDeserializer<Material> {
+    INSTANCE; // SINGLETON
+
+    @Override
+    public @Nullable JsonElement serialize(final @Nullable Material value, final @NotNull Type type, final @NotNull JsonSerializationContext context) {
+        return (value != null) ? new JsonPrimitive(value.getKey().asString()) : null;
     }
 
     @Override
-    public BlastingRecipe toBukkit() {
-        if (super.experience == null || super.experience < 0) super.experience = 0f;
-        if (super.cookingTime == null || super.cookingTime < 0) super.cookingTime = 200;
-
-        return new BlastingRecipe(
-                super.key,
-                super.result.toItemStack(),
-                super.input,
-                super.experience,
-                super.cookingTime
-        );
+    public @Nullable Material deserialize(final @NotNull JsonElement json, final @NotNull Type type, final @NotNull JsonDeserializationContext context) throws JsonParseException {
+        return (json.isJsonPrimitive() == true) ? Material.matchMaterial(json.getAsString()) : null;
     }
+
 }

@@ -2,7 +2,6 @@
  * BSD 3-Clause License
  *
  * Copyright (c) 2023, Lorenzo Magni
- * Copyright (c) 2025, Grabsky (michal.czopek.foss@proton.me)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,21 +29,30 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr.model.recipes;
+package cloud.grabsky.recipes.model.recipes;
 
-import org.bukkit.inventory.CampfireRecipe;
+import com.google.gson.annotations.SerializedName;
+import cloud.grabsky.recipes.model.Item;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.RecipeChoice;
 
-public final class CampfireRecipeWrapper extends FurnaceRecipeWrapper {
+public abstract class FurnaceRecipeWrapper extends RecipeWrapper {
+    protected RecipeChoice input;
+    protected Item result;
+    protected Float experience;
 
-    public CampfireRecipeWrapper() {
-        super(Type.CAMPFIRE);
+    @SerializedName("cooking_time")
+    protected Integer cookingTime;
+
+    public FurnaceRecipeWrapper(Type type) {
+        super(type);
     }
 
     @Override
-    public CampfireRecipe toBukkit() {
-        if (super.experience == null || super.experience < 0) super.experience = 0f;
-        if (super.cookingTime == null || super.cookingTime < 0) super.cookingTime = 200;
+    public abstract Recipe toBukkit();
 
-        return new CampfireRecipe(super.key, super.result.toItemStack(), super.input, super.experience, super.cookingTime);
+    @Override
+    public boolean isValid() {
+        return input != null && result != null && result.isValid();
     }
 }

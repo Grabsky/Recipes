@@ -30,7 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr.configuration;
+package cloud.grabsky.recipes.configuration;
 
 import revxrsal.spec.annotation.Comment;
 import revxrsal.spec.annotation.ConfigSpec;
@@ -44,9 +44,9 @@ import revxrsal.spec.annotation.Save;
 public interface PluginConfiguration {
 
     @Order(0) @Key("namespace")
-    @Comment("Namespace to be used for recipe registration. (Default: nbtrecipes)")
+    @Comment("Namespace to be used for recipe registration. (Default: recipes)")
     default String namespace() {
-        return "nbtrecipes";
+        return "recipes";
     }
 
     @Order(1) @Key("minimize_exceptions_stacktrace")
@@ -68,7 +68,7 @@ public interface PluginConfiguration {
         @Key("command.recipes.reload.success")
         @Comment("Recipes > Reload")
         default String commandRecipesReloadSuccess() {
-            return "<dark_gray>› <gray>Plugin <gold>NBTRecipes<gray> has been reloaded.";
+            return "<dark_gray>› <gray>Plugin <gold>Recipes<gray> has been reloaded.";
         }
 
         // Recipes > Recipes List

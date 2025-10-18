@@ -29,13 +29,13 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr.registry;
+package cloud.grabsky.recipes.registry;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import it.multicoredev.nbtr.NBTRecipes;
+import cloud.grabsky.recipes.Recipes;
 import org.bukkit.inventory.ItemStack;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
@@ -67,7 +67,7 @@ import lombok.RequiredArgsConstructor;
 public final class CustomItemRegistry {
 
     @Getter(AccessLevel.PUBLIC)
-    private final NBTRecipes plugin;
+    private final Recipes plugin;
 
     // Stores plugin-specified items in their raw form. This is populated by Gson.
     private final Map<String, String> internalMap = new HashMap<>();
@@ -187,7 +187,7 @@ public final class CustomItemRegistry {
 
         @Override
         public @NotNull Collection<String> getSuggestions(final @NotNull ExecutionContext<BukkitCommandActor> executionContext) {
-            return NBTRecipes.instance().customItemRegistry().allKeys();
+            return Recipes.instance().customItemRegistry().allKeys();
         }
 
     }

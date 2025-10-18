@@ -30,9 +30,9 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr.model.recipes;
+package cloud.grabsky.recipes.model.recipes;
 
-import it.multicoredev.nbtr.model.Item;
+import cloud.grabsky.recipes.model.Item;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.SmithingRecipe;

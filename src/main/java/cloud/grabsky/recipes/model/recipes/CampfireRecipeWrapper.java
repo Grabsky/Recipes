@@ -30,20 +30,21 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr.model;
+package cloud.grabsky.recipes.model.recipes;
 
-import com.google.gson.annotations.SerializedName;
-import org.bukkit.inventory.RecipeChoice;
+import org.bukkit.inventory.CampfireRecipe;
 
-import java.util.List;
+public final class CampfireRecipeWrapper extends FurnaceRecipeWrapper {
 
-import lombok.AccessLevel;
-import lombok.Getter;
+    public CampfireRecipeWrapper() {
+        super(Type.CAMPFIRE);
+    }
 
-public final class DiscoverTrigger {
+    @Override
+    public CampfireRecipe toBukkit() {
+        if (super.experience == null || super.experience < 0) super.experience = 0f;
+        if (super.cookingTime == null || super.cookingTime < 0) super.cookingTime = 200;
 
-    @SerializedName("items")
-    @Getter(AccessLevel.PUBLIC)
-    private List<RecipeChoice> requiredChoices;
-
+        return new CampfireRecipe(super.key, super.result.toItemStack(), super.input, super.experience, super.cookingTime);
+    }
 }

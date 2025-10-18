@@ -30,10 +30,10 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr.model;
+package cloud.grabsky.recipes.model;
 
+import cloud.grabsky.recipes.Recipes;
 import com.google.gson.annotations.SerializedName;
-import it.multicoredev.nbtr.NBTRecipes;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -74,7 +74,7 @@ public final class Item {
     @SuppressWarnings("deprecation") // Suppressing @Deprecated warnings. It's Paper that deprecates ChatColor methods and they're called only when running Spigot. It's also Bukkit#getUnsafe which we must use at this point.
     public ItemStack toItemStack() throws IllegalArgumentException {
         if (registeredItem != null) {
-            final @Nullable ItemStack item = NBTRecipes.instance().customItemRegistry().get(registeredItem);
+            final @Nullable ItemStack item = Recipes.instance().customItemRegistry().get(registeredItem);
             // Throwing exception if custom item doesn't exist in the registry.
             if (item == null)
                 throw new IllegalArgumentException("Custom item \"" + registeredItem + "\" does not exist.");

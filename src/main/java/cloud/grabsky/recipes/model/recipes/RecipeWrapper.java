@@ -30,7 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr.model.recipes;
+package cloud.grabsky.recipes.model.recipes;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -41,7 +41,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
-import it.multicoredev.nbtr.model.DiscoverTrigger;
+import cloud.grabsky.recipes.model.DiscoverTrigger;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.Recipe;
 

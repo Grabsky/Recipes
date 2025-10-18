@@ -4,9 +4,9 @@ plugins {
     id("de.eldoria.plugin-yml.paper") version "0.8.0"
 }
 
-group = "it.multicoredev.nbtr"
+group = "cloud.grabsky"
 version = "2.0.0-SNAPSHOT"
-description = "NBTRecipes"
+description = "Recipes"
 
 repositories {
     mavenLocal()
@@ -42,13 +42,12 @@ tasks {
 }
 
 paper {
-    main = "it.multicoredev.nbtr.NBTRecipes"
-    loader = "it.multicoredev.nbtr.NBTRecipes\$PluginLoader"
+    main = "cloud.grabsky.recipes.Recipes"
+    loader = "cloud.grabsky.recipes.Recipes\$PluginLoader"
     apiVersion = "1.21"
     foliaSupported = true
     generateLibrariesJson = true
-    authors = ["LoreSchaeffer"]
-    contributors = ["LoreSchaeffer", "Grabsky"]
+    authors = ["LoreSchaeffer", "Grabsky"]
 }
 
 // Configuring runServer task to use JetBrains' JDK 21 for expanded hot-swap features.

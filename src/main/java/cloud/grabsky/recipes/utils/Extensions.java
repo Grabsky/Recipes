@@ -1,7 +1,6 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2023, Lorenzo Magni
  * Copyright (c) 2025, Grabsky (michal.czopek.foss@proton.me)
  * All rights reserved.
  *
@@ -30,33 +29,41 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr.configuration.adapters;
+package cloud.grabsky.recipes.utils;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import org.bukkit.Material;
-
-import java.lang.reflect.Type;
+import org.bukkit.command.CommandSender;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public enum MaterialAdapter implements JsonSerializer<Material>, JsonDeserializer<Material> {
-    INSTANCE; // SINGLETON
+// Utility class containing extension methods through the Lombok's @ExtensionMethod annotation.
+public final class Extensions {
 
-    @Override
-    public @Nullable JsonElement serialize(final @Nullable Material value, final @NotNull Type type, final @NotNull JsonSerializationContext context) {
-        return (value != null) ? new JsonPrimitive(value.getKey().asString()) : null;
+    public static String repl(final @NotNull String self, @NotNull Object... replacements) {
+        // Returning the original string if no replacements were specified.
+        if (replacements == null)
+            return self;
+        // Throwing exception when
+        if (replacements.length % 2 != 0)
+            throw new IllegalArgumentException("Invalid arguments. Replacements must be in key-value pairs.");
+        // Preparing the result string.
+        String result = self;
+        // Iterating over specified replacements key-value pairs and replacing them in the string.
+        for (int index = 0; index < replacements.length; index += 2)
+            result = result.replace(String.valueOf(replacements[index]), String.valueOf(replacements[index + 1]));
+        // Returning the result.
+        return result;
     }
 
-    @Override
-    public @Nullable Material deserialize(final @NotNull JsonElement json, final @NotNull Type type, final @NotNull JsonDeserializationContext context) throws JsonParseException {
-        return (json.isJsonPrimitive() == true) ? Material.matchMaterial(json.getAsString()) : null;
+    /**
+     * Sends message to the sender using the MiniMessage formatting or does nothing if the message is null or empty.
+     */
+    public static void sendTextMessage(final @NotNull CommandSender sender, final @Nullable String message) {
+        // Returning in case message is null or empty.
+        if (message == null || message.isEmpty() == true)
+            return;
+        // Sending message to the target.
+        sender.sendRichMessage(message);
     }
 
 }

@@ -30,22 +30,22 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr.model.recipes;
+package cloud.grabsky.recipes.model.recipes;
 
-import org.bukkit.inventory.FurnaceRecipe;
+import org.bukkit.inventory.SmokingRecipe;
 
-public final class SmeltingRecipeWrapper extends FurnaceRecipeWrapper {
+public class SmokingRecipeWrapper extends FurnaceRecipeWrapper {
 
-    public SmeltingRecipeWrapper() {
-        super(Type.SMELTING);
+    public SmokingRecipeWrapper() {
+        super(Type.SMOKING);
     }
 
     @Override
-    public FurnaceRecipe toBukkit() {
+    public SmokingRecipe toBukkit() {
         if (super.experience == null || super.experience < 0) super.experience = 0f;
         if (super.cookingTime == null || super.cookingTime < 0) super.cookingTime = 200;
 
-        return new FurnaceRecipe(
+        return new SmokingRecipe(
                 super.key,
                 super.result.toItemStack(),
                 super.input,

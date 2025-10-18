@@ -29,27 +29,24 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr.model.recipes;
+package cloud.grabsky.recipes.model.recipes;
 
-import com.google.gson.annotations.SerializedName;
-import it.multicoredev.nbtr.model.Item;
-import org.bukkit.inventory.Recipe;
+import cloud.grabsky.recipes.model.Item;
 import org.bukkit.inventory.RecipeChoice;
+import org.bukkit.inventory.StonecuttingRecipe;
 
-public abstract class FurnaceRecipeWrapper extends RecipeWrapper {
-    protected RecipeChoice input;
-    protected Item result;
-    protected Float experience;
+public class StonecuttingRecipeWrapper extends RecipeWrapper {
+    private RecipeChoice input;
+    private Item result;
 
-    @SerializedName("cooking_time")
-    protected Integer cookingTime;
-
-    public FurnaceRecipeWrapper(Type type) {
-        super(type);
+    public StonecuttingRecipeWrapper() {
+        super(Type.STONECUTTING_RECIPE);
     }
 
     @Override
-    public abstract Recipe toBukkit();
+    public StonecuttingRecipe toBukkit() {
+        return new StonecuttingRecipe(super.key, result.toItemStack(), input);
+    }
 
     @Override
     public boolean isValid() {

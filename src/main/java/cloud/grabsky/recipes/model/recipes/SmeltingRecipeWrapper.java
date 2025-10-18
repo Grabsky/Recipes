@@ -30,38 +30,27 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr.model.recipes;
+package cloud.grabsky.recipes.model.recipes;
 
-import it.multicoredev.nbtr.model.Item;
-import org.bukkit.inventory.RecipeChoice;
-import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.FurnaceRecipe;
 
-import java.util.List;
-import java.util.Objects;
+public final class SmeltingRecipeWrapper extends FurnaceRecipeWrapper {
 
-public final class ShapelessRecipeWrapper extends RecipeWrapper {
-    private List<RecipeChoice> ingredients;
-    private Item result;
-
-    public ShapelessRecipeWrapper() {
-        super(Type.SHAPELESS);
+    public SmeltingRecipeWrapper() {
+        super(Type.SMELTING);
     }
 
     @Override
-    public ShapelessRecipe toBukkit() {
-        ShapelessRecipe recipe = new ShapelessRecipe(super.key, result.toItemStack());
+    public FurnaceRecipe toBukkit() {
+        if (super.experience == null || super.experience < 0) super.experience = 0f;
+        if (super.cookingTime == null || super.cookingTime < 0) super.cookingTime = 200;
 
-        ingredients.forEach(recipe::addIngredient);
-
-        return recipe;
-    }
-
-    @Override
-    public boolean isValid() {
-        if (ingredients == null || ingredients.isEmpty() || ingredients.size() > 9) return false;
-
-        if (ingredients.stream().anyMatch(Objects::isNull)) return false;
-
-        return result != null && result.isValid();
+        return new FurnaceRecipe(
+                super.key,
+                super.result.toItemStack(),
+                super.input,
+                super.experience,
+                super.cookingTime
+        );
     }
 }

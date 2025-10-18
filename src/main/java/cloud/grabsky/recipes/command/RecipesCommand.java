@@ -30,11 +30,11 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr.command;
+package cloud.grabsky.recipes.command;
 
-import it.multicoredev.nbtr.NBTRecipes;
-import it.multicoredev.nbtr.registry.CustomItemRegistry;
-import it.multicoredev.nbtr.utils.Extensions;
+import cloud.grabsky.recipes.Recipes;
+import cloud.grabsky.recipes.registry.CustomItemRegistry;
+import cloud.grabsky.recipes.utils.Extensions;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -57,7 +57,7 @@ public enum RecipesCommand {
     INSTANCE; // SINGLETON
 
     @Dependency
-    private NBTRecipes plugin;
+    private Recipes plugin;
 
     @Command("recipes reload")
     @CommandPermission("recipes.command.reload")

@@ -30,10 +30,10 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package it.multicoredev.nbtr.listeners;
+package cloud.grabsky.recipes.listeners;
 
-import it.multicoredev.nbtr.NBTRecipes;
-import it.multicoredev.nbtr.model.recipes.RecipeWrapper;
+import cloud.grabsky.recipes.Recipes;
+import cloud.grabsky.recipes.model.recipes.RecipeWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -56,7 +56,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 public final class DiscoverTriggerListener implements Listener {
 
-    private final NBTRecipes plugin;
+    private final Recipes plugin;
 
     @EventHandler
     public void onPlayerJoin(final PlayerJoinEvent event) {
