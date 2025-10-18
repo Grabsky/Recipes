@@ -1,29 +1,45 @@
 package it.multicoredev.nbtr;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
-import it.multicoredev.mclib.json.GsonHelper;
-import it.multicoredev.mclib.json.TypeAdapter;
-import it.multicoredev.nbtr.configuration.Config;
+import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
+import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
+import it.multicoredev.nbtr.command.RecipesCommand;
+import it.multicoredev.nbtr.configuration.PluginConfiguration;
 import it.multicoredev.nbtr.configuration.adapters.MaterialAdapter;
 import it.multicoredev.nbtr.configuration.adapters.RecipeChoiceAdapter;
 import it.multicoredev.nbtr.listeners.DiscoverTriggerListener;
 import it.multicoredev.nbtr.model.recipes.RecipeWrapper;
 import it.multicoredev.nbtr.registry.CustomItemRegistry;
-import org.bstats.bukkit.Metrics;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.bukkit.BukkitLamp;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
+import revxrsal.spec.ArrayCommentStyle;
+import revxrsal.spec.CommentedConfiguration;
+import revxrsal.spec.Specs;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -32,6 +48,7 @@ import org.jetbrains.annotations.NotNull;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
@@ -67,19 +84,27 @@ import lombok.experimental.Accessors;
  */
 // TO-DO: Recipe Editor (GUI) (?)
 // TO-DO: Improve performance by skipping recipes that are already registered and have not changed.
+@Accessors(fluent = true)
 public class NBTRecipes extends JavaPlugin {
 
-    private static final GsonHelper GSON = new GsonHelper(
-            new TypeAdapter(Material.class, MaterialAdapter.INSTANCE),
-            new TypeAdapter(RecipeChoice.class, RecipeChoiceAdapter.INSTANCE)
-    );
+    private static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(Material.class, MaterialAdapter.INSTANCE)
+            .registerTypeAdapter(RecipeChoice.class, RecipeChoiceAdapter.INSTANCE)
+            .disableHtmlEscaping()
+            .setPrettyPrinting()
+            .create();
 
     @Getter(AccessLevel.PUBLIC)
     private static NBTRecipes instance;
 
-    @Accessors(fluent = true)
     @Getter(AccessLevel.PUBLIC)
-    private Config config;
+    private File configurationFile;
+
+    @Getter(AccessLevel.PUBLIC)
+    private CommentedConfiguration commentedConfiguration;
+
+    @Getter(AccessLevel.PUBLIC)
+    private PluginConfiguration configuration;
 
     @Getter(AccessLevel.PUBLIC)
     private CustomItemRegistry customItemRegistry;
@@ -91,7 +116,7 @@ public class NBTRecipes extends JavaPlugin {
     private final List<NamespacedKey> registeredRecipes = new ArrayList<>();
 
     @Getter(AccessLevel.PUBLIC)
-    private Lamp<BukkitCommandActor> commands;
+    private Lamp<BukkitCommandActor> lamp;
 
     @Getter(AccessLevel.PUBLIC)
     private String namespace;
@@ -107,15 +132,20 @@ public class NBTRecipes extends JavaPlugin {
 
     static {
         try {
-            // Checking if the RegionizedServer class (Folia-specific) is present in the runtime.
             Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
-            // In case the class is found, it means that the server is running Folia.
             isFolia = true;
         } catch (final ClassNotFoundException e) {
-            // In case the class is not found, it means that the server is not running Folia.
             isFolia = false;
         }
     }
+
+    private static final ThreadLocal<Yaml> YAML = ThreadLocal.withInitial(() -> {
+        final DumperOptions options = new DumperOptions();
+        options.setSplitLines(false);
+        options.setProcessComments(false);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        return new Yaml(options);
+    });
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
@@ -136,37 +166,32 @@ public class NBTRecipes extends JavaPlugin {
         // Registering event listeners.
         this.getServer().getPluginManager().registerEvents(new DiscoverTriggerListener(this), this);
         // Initializing Lamp.
-        this.commands = BukkitLamp.builder(this)
+        this.lamp = BukkitLamp.builder(this)
+                // Registering @Dependency dependencies.
+                .dependency(NBTRecipes.class, this)
+                // Registering command response handler for String object.
                 .responseHandler(String.class, (value, context) -> {
-                    // Returning in case message is null or empty.
-                    if (value == null || value.isEmpty() == true)
-                        return;
-                    // Sending message to the sender.
-                    context.actor().requirePlayer().sendRichMessage(value);
+                    // Forwarding returned message to the command sender.
+                    if (value.isEmpty() == false)
+                        context.actor().reply(MiniMessage.miniMessage().deserialize(value));
                 })
                 .build();
         // Registering command(s).
-        this.commands.register(new NBTRCommand(this));
+        lamp.register(RecipesCommand.INSTANCE);
         // Starting bStats...
-        new Metrics(this, 17319);
+        // new Metrics(this, 17319);
     }
 
     public boolean onReload() {
-        // Reloading plugin configuration.
-        try {
-            if (recipesDir.isDirectory() == false)
-                throw new IOException("File \"" + recipesDir.getAbsolutePath() + "\" is not a directory.");
-            // Creating the "plugins/NBTRecipes/recipes" directory.
-            if (recipesDir.exists() == false && recipesDir.mkdirs() == false)
-                throw new IOException("Failed to create \"" + recipesDir.getAbsolutePath() + "\" directory.");
-            // Loading the configuration.
-            config = GSON.autoload(new File(getDataFolder(), "config.json"), new Config().init(), Config.class);
-        } catch (final IOException e) {
-            // Printing the stack trace.
-            e.printStackTrace();
-            // Returning...
-            return false;
-        }
+        this.configurationFile = new File(this.getDataFolder(), "config.yml");
+        // Initializing instance of CommentedConfiguration.
+        this.commentedConfiguration = new CommentedConfiguration(configurationFile.toPath(), CommentedConfiguration.GSON, ArrayCommentStyle.COMMENT_FIRST_ELEMENT, YAML.get());
+        // Loading configuration file.
+        this.configuration = Specs.fromConfig(PluginConfiguration.class, commentedConfiguration);
+        // Saving default contents to the configuration file.
+        this.configuration.save();
+        // Reloading and mapping configuration file contents to the PluginConfiguration instance.
+        this.configuration.reload();
         // Getting the configured plugin namespace that will be used for recipe registration.
         this.namespace = initializeNamespace();
         // Refreshing the custom item registry.
@@ -179,8 +204,8 @@ public class NBTRecipes extends JavaPlugin {
         loadRecipes(recipesDir);
         // Registering the recipes.
         registerRecipes();
-        // Sending information to the console.
-        this.getLogger().info("Registered " + registeredRecipes.size() + " our of " + recipes.size() + " recipes.");
+        // Sending information to the console. (Commented out because it is inaccurate)
+        // this.getLogger().info("Registered " + registeredRecipes.size() + " out of " + recipes.size() + " recipes.");
         // Returning...
         return true;
     }
@@ -195,10 +220,10 @@ public class NBTRecipes extends JavaPlugin {
         // Sorting and iterating through files in natural order to ensure that they are loaded in the same order every time.
         for (final File file : Stream.of(files).sorted(Comparator.naturalOrder()).toList()) {
             if (file.isDirectory() == true)
-                loadRecipes(file);
+                this.loadRecipes(file);
             else if (file.getName().toLowerCase().endsWith(".json") == true) {
                 try {
-                    final RecipeWrapper recipe = GSON.load(file, RecipeWrapper.class);
+                    final RecipeWrapper recipe = GSON.fromJson(new FileReader(file), RecipeWrapper.class);
                     if (recipe == null || recipe.isValid() == false) {
                         this.getLogger().warning("Recipe \"" + file.getName() + "\" is invalid.");
                         continue;
@@ -210,7 +235,7 @@ public class NBTRecipes extends JavaPlugin {
                 } catch (final IOException | JsonParseException | IllegalArgumentException | IllegalStateException e) {
                     this.getLogger().severe("Loading of recipe \"" + file.getName() + "\" failed due to following error(s):");
                     // Printing the full stack trace if 'minimize_exceptions_stacktrace' option is disabled.
-                    if (config.minimizeExceptionsStacktrace == false) {
+                    if (this.configuration.minimizeExceptionsStacktrace() == false) {
                         e.printStackTrace();
                         return;
                     }
@@ -226,17 +251,21 @@ public class NBTRecipes extends JavaPlugin {
     private void registerRecipes() {
         recipes.forEach(recipe -> {
             final NamespacedKey key = recipe.getKey();
-            // Support for overriding vanilla commands. Config namespace must be set to "minecraft" for that to work.
+            // Support for overriding vanilla commands. PluginConfiguration namespace must be set to "minecraft" for that to work.
             if (key.getNamespace().equals("minecraft") == true && this.getServer().getRecipe(key) != null) {
                 // Removing the original recipe. It won't be added back until the server restart or "minecraft:reload" command is executed.
                 this.getServer().removeRecipe(key);
                 // Sending information to the console.
                 this.getLogger().warning("Recipe \"" + key + "\" is now overriding vanilla recipe with the same key.");
             }
-            // Registering the recipe.
-            this.getServer().addRecipe(recipe.toBukkit(), false);
-            // Adding the recipe key to the list of registered recipes.
-            registeredRecipes.add(key);
+            // Registering the recipe...
+            try {
+                this.getServer().addRecipe(recipe.toBukkit(), false);
+                // Adding the recipe key to the list of registered recipes.
+                registeredRecipes.add(key);
+            } catch (final IllegalArgumentException e) {
+                // FAILING SILENTLY; Error and stacktrace should already be printed when loading.
+            }
         });
         // Updating recipes.
         this.getServer().updateRecipes();
@@ -251,12 +280,12 @@ public class NBTRecipes extends JavaPlugin {
     // Returns configured namespace or, in case it's invalid, lower-case plugin name.
     private @NotNull String initializeNamespace() throws IllegalArgumentException {
         // Returning a configured namespace, or in case it's unspecified, lower-case plugin name.
-        if (config().namespace == null)
+        if (this.configuration.namespace() == null)
             return getName().toLowerCase(Locale.ROOT);
         // Getting a namespace with all non-matching characters ignored.
-        final String namespace = ignoreNonMatchingCharacters(config().namespace, NAMESPACE_PATTERN);
+        final String namespace = ignoreNonMatchingCharacters(this.configuration.namespace(), NAMESPACE_PATTERN);
         // Throwing IllegalArgumentException if namespace turned out to be empty.
-        if (namespace.isEmpty())
+        if (namespace.isEmpty() == true)
             throw new IllegalArgumentException("Namespace must contain at least one alphanumeric character.");
         // Returning the namespace.
         return namespace;
@@ -292,6 +321,57 @@ public class NBTRecipes extends JavaPlugin {
             builder.append(matcher.group());
         // Returning the result.
         return builder.toString();
+    }
+
+
+    /* PLUGIN LOADER; FOR USE WITH PLUGIN-YML FOR GRADLE */
+
+    @SuppressWarnings("UnstableApiUsage")
+    public static final class PluginLoader implements io.papermc.paper.plugin.loader.PluginLoader {
+
+        @Override
+        public void classloader(final @NotNull PluginClasspathBuilder classpathBuilder) throws IllegalStateException {
+            final MavenLibraryResolver resolver = new MavenLibraryResolver();
+            // Parsing the file.
+            try (final InputStream in = getClass().getResourceAsStream("/paper-libraries.json")) {
+                final PluginLibraries libraries = new Gson().fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), PluginLibraries.class);
+                // Adding repositories to the maven library resolver.
+                libraries.asRepositories().forEach(resolver::addRepository);
+                // Adding dependencies to the maven library resolver.
+                libraries.asDependencies().forEach(resolver::addDependency);
+                // Adding library resolver to the classpath builder.
+                classpathBuilder.addLibrary(resolver);
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
+        private static class PluginLibraries {
+
+            private final Map<String, String> repositories;
+            private final List<String> dependencies;
+
+            public Stream<RemoteRepository> asRepositories() {
+                return repositories.entrySet().stream().map(entry -> {
+                    try {
+                        final String MAVEN_CENTRAL_DEFAULT_MIRROR = (String) MavenLibraryResolver.class.getField("MAVEN_CENTRAL_DEFAULT_MIRROR").get(null);
+                        // Replacing Maven Central repository with a pre-configured mirror.
+                        // See: https://docs.papermc.io/paper/dev/getting-started/paper-plugins/#loaders
+                        if (entry.getValue().contains("maven.org") == true || entry.getValue().contains("maven.apache.org") == true) {
+                            return new RemoteRepository.Builder(entry.getKey(), "default", MAVEN_CENTRAL_DEFAULT_MIRROR).build();
+                        }
+                        return new RemoteRepository.Builder(entry.getKey(), "default", entry.getValue()).build();
+                    } catch (final NoSuchFieldError | NoSuchFieldException | IllegalAccessException e) {
+                        return new RemoteRepository.Builder(entry.getKey(), "default", "https://maven-central.storage-download.googleapis.com/maven2").build();
+                    }
+                });
+            }
+
+            public Stream<Dependency> asDependencies() {
+                return dependencies.stream().map(value -> new Dependency(new DefaultArtifact(value), null));
+            }
+        }
     }
 
 }

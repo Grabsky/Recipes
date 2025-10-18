@@ -62,9 +62,6 @@ public final class Item {
     @Getter(AccessLevel.PUBLIC)
     private final @Nullable List<String> lore;
 
-    // Getter os mpt not explicitly defined by Lombok, because it is named differently.
-    private final @Nullable String nbt;
-
     @Getter(AccessLevel.PUBLIC)
     private final @Nullable String components;
 
@@ -73,18 +70,13 @@ public final class Item {
     @SerializedName("registered_item")
     private final @Nullable String registeredItem;
 
-    /** Returns the NBT string of the item. */
-    public String getNBT() {
-        return nbt;
-    }
-
     @SuppressWarnings("deprecation") // Suppressing @Deprecated warnings. It's Paper that deprecates ChatColor methods and they're called only when running Spigot. It's also Bukkit#getUnsafe which we must use at this point.
     public ItemStack toItemStack() throws IllegalArgumentException {
         if (registeredItem != null) {
-            final @Nullable ItemStack item = NBTRecipes.getInstance().getCustomItemRegistry().get(registeredItem);
+            final @Nullable ItemStack item = NBTRecipes.instance().customItemRegistry().get(registeredItem);
             // Throwing exception if custom item doesn't exist in the registry.
             if (item == null)
-                throw new IllegalStateException("Custom item \"" + registeredItem + "\" does not exist.");
+                throw new IllegalArgumentException("Custom item \"" + registeredItem + "\" does not exist.");
             // Setting amount if specified and greater than 0.
             if (amount != null && amount > 0)
                 item.setAmount(Math.min(item.getMaxStackSize(), amount));
@@ -93,16 +85,8 @@ public final class Item {
         }
         final ItemStack item = new ItemStack(material);
         // Setting NBT/Components if specified. This is called first as it can be overridden by named properties in next steps.
-        if (Bukkit.getUnsafe().getProtocolVersion() >= 766) {
-            if (nbt != null)
-                throw new IllegalArgumentException("Versions 1.20.5 and higher must not use \"nbt\" but use \"components\" instead.");
-            // On versions that are equal to or higher than 1.20.5, we're using "components" property.
-            else if (components != null && !components.trim().isEmpty())
-                Bukkit.getUnsafe().modifyItemStack(item, material.key().asString() + components);
-        // On versions lower than 1.20.5, we're using "nbt" property.
-        } else if (nbt != null && !nbt.trim().isEmpty()) {
-            Bukkit.getUnsafe().modifyItemStack(item, material.key().asString() + nbt);
-        }
+        if (components != null && !components.trim().isEmpty())
+            Bukkit.getUnsafe().modifyItemStack(item, material.key().asString() + components);
         // Setting amount if specified and greater than 0.
         if (amount != null && amount > 0)
             item.setAmount(Math.min(material.getMaxStackSize(), amount));

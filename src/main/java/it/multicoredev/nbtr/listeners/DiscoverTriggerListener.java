@@ -59,10 +59,10 @@ public final class DiscoverTriggerListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(final PlayerJoinEvent event) {
-        Bukkit.getAsyncScheduler().runNow(plugin, (_) -> {
+        Bukkit.getAsyncScheduler().runNow(plugin, (task) -> {
             final Player player = event.getPlayer();
             // Preparing the list of recipes to discover.
-            final List<NamespacedKey> recipes = plugin.getRecipes().stream().filter(recipe -> {
+            final List<NamespacedKey> recipes = plugin.recipes().stream().filter(recipe -> {
                 // Excluding already discovered recipes.
                 if (player.hasDiscoveredRecipe(recipe.getKey()) == true)
                     return false;
@@ -87,7 +87,7 @@ public final class DiscoverTriggerListener implements Listener {
                 return false;
             }).map(RecipeWrapper::getKey).toList();
             // Discovering the recipes for the player.
-            player.getScheduler().run(plugin, (_) -> player.discoverRecipes(recipes), null);
+            player.getScheduler().run(plugin, (_task) -> player.discoverRecipes(recipes), null);
         });
     }
 
@@ -97,9 +97,9 @@ public final class DiscoverTriggerListener implements Listener {
             // Getting the item that was picked up. Must be called immediately because on the next tick it is already empty.
             final ItemStack item = event.getItem().getItemStack().clone();
             // Scheduling further logic off the main thread.
-            Bukkit.getAsyncScheduler().runNow(plugin, (_) -> {
+            Bukkit.getAsyncScheduler().runNow(plugin, (task) -> {
                 // Preparing the list of recipes to discover.
-                final List<NamespacedKey> recipes = plugin.getRecipes().stream().filter(recipe -> {
+                final List<NamespacedKey> recipes = plugin.recipes().stream().filter(recipe -> {
                     // Excluding already discovered recipes.
                     if (player.hasDiscoveredRecipe(recipe.getKey()) == true)
                         return false;
@@ -119,7 +119,7 @@ public final class DiscoverTriggerListener implements Listener {
                     return false;
                 }).map(RecipeWrapper::getKey).toList();
                 // Discovering the recipes for the player.
-                player.getScheduler().run(plugin, (_) -> player.discoverRecipes(recipes), null);
+                player.getScheduler().run(plugin, (_task) -> player.discoverRecipes(recipes), null);
             });
         }
     }

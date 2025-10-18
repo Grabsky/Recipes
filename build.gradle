@@ -1,7 +1,7 @@
 plugins {
     id("java-library")
-    id("de.eldoria.plugin-yml.paper") version "0.7.1"
-    id("com.gradleup.shadow") version "8.3.5"
+    id("xyz.jpenilla.run-paper") version "3.0.0"
+    id("de.eldoria.plugin-yml.paper") version "0.8.0"
 }
 
 group = "it.multicoredev.nbtr"
@@ -19,39 +19,51 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.36")
     annotationProcessor("org.projectlombok:lombok:1.18.36")
     // Paper API
-    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
-    // Libraries
-    implementation("it.multicoredev.mclib:MCLib-Configurations:1.7.2.6")
-    // Lamp (Command Framework)
-    implementation("io.github.revxrsal:lamp.common:4.0.0-rc.9")
-    implementation("io.github.revxrsal:lamp.bukkit:4.0.0-rc.9")
-    implementation("io.github.revxrsal:lamp.brigadier:4.0.0-rc.9")
-    // bStats (Metrics)
-    implementation("org.bstats:bstats-bukkit:3.0.2")
+    compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
+    // Lamp (Commands)
+    paperLibrary("io.github.revxrsal:lamp.common:4.0.0-rc.14")
+    paperLibrary("io.github.revxrsal:lamp.bukkit:4.0.0-rc.14")
+    paperLibrary("io.github.revxrsal:lamp.brigadier:4.0.0-rc.14")
+    // Spec (Configuration)
+    paperLibrary("io.github.revxrsal:spec:1.4")
 }
 
 tasks {
-    shadowJar {
-        shadowJar.archiveFileName = "${rootProject.name}-${project.version}.jar"
-        relocate("org.bstats", "it.multicoredev.nbtr.bstats")
-        relocate("t.multicoredev.mclib", "it.multicoredev.nbtr.mclib")
+    runServer {
+        minecraftVersion("1.21.10")
     }
     compileJava {
         options.fork = true
-        options.compilerArgs += ["--enable-preview", "-parameters"]
-        // Setting compatibility to Java 21 (above should work too).
+        options.compilerArgs += ["-parameters"]
+        // Setting compatibility to Java 21 and higher.
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
 }
 
-
 paper {
     main = "it.multicoredev.nbtr.NBTRecipes"
-    apiVersion = "1.20"
+    loader = "it.multicoredev.nbtr.NBTRecipes\$PluginLoader"
+    apiVersion = "1.21"
+    foliaSupported = true
+    generateLibrariesJson = true
     authors = ["LoreSchaeffer"]
     contributors = ["LoreSchaeffer", "Grabsky"]
-    foliaSupported = true
 }
+
+// Configuring runServer task to use JetBrains' JDK 21 for expanded hot-swap features.
+tasks.withType(xyz.jpenilla.runtask.task.AbstractRun.class).configureEach {
+    javaLauncher = javaToolchains.launcherFor {
+        vendor = JvmVendorSpec.JETBRAINS
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    jvmArgs("-Xmx1G", "-XX:+AllowEnhancedClassRedefinition", "-Dcom.mojang.eula.agree=true", "-Dnet.kyori.ansi.colorLevel=truecolor")
+}
+
+// Returns formatted release name. (for GitHub Actions)
+tasks.register("getRelease", () -> print("$VERSION #$RUN_NUMBER"))
+
+// Returns formatted tag name. (for GitHub Actions)
+tasks.register("getTag", () -> print("$VERSION+$RUN_NUMBER"))
 
 

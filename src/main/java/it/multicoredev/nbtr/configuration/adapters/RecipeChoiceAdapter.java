@@ -68,7 +68,7 @@ public enum RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice> {
                 }
                 // Returning MaterialChoice if metadata is empty, or ExactChoice otherwise.
                 try {
-                    return (item.getNBT() == null && item.getComponents() == null && !item.toItemStack().hasItemMeta())
+                    return (item.getComponents() == null && !item.toItemStack().hasItemMeta())
                             ? new RecipeChoice.MaterialChoice(item.toItemStack().getType())
                             : new RecipeChoice.ExactChoice(item.toItemStack());
                 } catch (final IllegalArgumentException e) {
@@ -100,7 +100,7 @@ public enum RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice> {
                 throw new JsonParseException("Required property \"material\" does not exist on one or more elements.");
             // Returning MaterialChoice if metadata of all items is empty, or ExactChoice otherwise.
             try {
-                return (items.stream().filter(RecipeChoiceAdapter::isNotAir).noneMatch(it -> it.getNBT() != null || it.getComponents() != null || it.toItemStack().hasItemMeta()))
+                return (items.stream().filter(RecipeChoiceAdapter::isNotAir).noneMatch(it -> it.getComponents() != null || it.toItemStack().hasItemMeta()))
                         ? new RecipeChoice.MaterialChoice(items.stream().filter(RecipeChoiceAdapter::isNotAir).map(Item::toItemStack).map(ItemStack::getType).collect(Collectors.toList()))
                         : new RecipeChoice.ExactChoice(items.stream().filter(RecipeChoiceAdapter::isNotAir).map(Item::toItemStack).collect(Collectors.toList()));
             } catch (final IllegalArgumentException e) {

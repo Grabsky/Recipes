@@ -1,11 +1,16 @@
 NBTRecipes 2.0.0
 - BREAKING: Spigot is no longer supported. Plugin will now only run on Paper and forks.
+- BREAKING: Dropped support for versions below 1.21.
 - BREAKING: Legacy text formatting is no longer supported. Please migrate to MiniMessage.
+- BREAKING: Replaced 'nbt' property with 'components' in item definitions. Legacy NBT is no longer supported.
 - CHANGE: Rewritten majority of the plugin code-base and simplified things where possible. A few dependencies has been dropped
 - CHANGE: Recipes are now loaded in natural order to ensure that the order is persistent throughout plugin reloads / server restarts.
 - CHANGE: Default translations now use more consistent format. A few new translations were added to the config file.
+- CHANGE: Original dependencies (MBCore, MCLib) were replaced with Revxrsal/Lamp and Revxrsal/Spec.
+- CHANGE: Dependencies are no longer bundled / shaded and are now loaded dynamically in the runtime.
+- CHANGE: Command /nbtr has been renamed to /recipes.
 - NEW: Support for 1.20.5+ item components through the 'components' property.
-- NEW: Exceptions minimization is now configurable and enabled by default.
+- NEW: Exception minimization is now configurable and enabled by default.
 - NEW: Custom Item Registry for easier management of custom items.
   - COMMAND: /nbtrecipes register_item (id) - Registers currently held item as a custom item.
   - COMMAND: /nbtrecipes unregister_item (id) - Unregisters custom item with specified identifier.

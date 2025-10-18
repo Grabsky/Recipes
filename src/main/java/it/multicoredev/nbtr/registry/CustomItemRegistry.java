@@ -156,7 +156,7 @@ public final class CustomItemRegistry {
 
         @Override
         public @NotNull Collection<String> getSuggestions(final @NotNull ExecutionContext<BukkitCommandActor> executionContext) {
-            return NBTRecipes.getInstance().getCustomItemRegistry().allKeys();
+            return NBTRecipes.instance().customItemRegistry().allKeys();
         }
 
     }
