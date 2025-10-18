@@ -30,24 +30,24 @@ The namespace can only contain the following characters: `a-z`, `0-9`, `_`, `-`,
 Legacy color codes are not supported. Please use [MiniMessage](https://docs.advntr.dev/minimessage/format) for text formatting.
 
 ### 1.2. Commands
-* **`/nbtrecipes reload`**
+* **`/recipes reload`**
   * Reloads recipes, items and the configuration file.
-  * Permission: `nbtr.command.reload`
-* **`/nbtrecipes list_recipes`**
+  * Permission: `recipes.command.reload`
+* **`/recipes list_recipes`**
   * Lists all recipes added by this plugin.
-  * Permission: `nbtr.command.list_recipes`
-* **`/nbtrecipes list_items`**
+  * Permission: `recipes.command.list_recipes`
+* **`/recipes list_items`**
   * Lists all registered custom items.
-  * Permission: `nbtr.command.list_items`
-* **`/nbtrecipes register_item (identifier)`**
+  * Permission: `recipes.command.list_items`
+* **`/recipes register_item (identifier)`**
   * Registers custom item that is currently held in the main hand.
-  * Permission: `nbtr.command.register_item`
-* **`/nbtrecipes unregister_item (identifier)`**
+  * Permission: `recipes.command.register_item`
+* **`/recipes unregister_item (identifier)`**
   * Unregisters custom item with the given identifier.
-  * Permission: `nbtr.command.unregister_item`
-* **`/nbtrecipes give_item (target) (identifier) [amount]`**
+  * Permission: `recipes.command.unregister_item`
+* **`/recipes give_item (target) (identifier) [amount]`**
   * Gives specified custom item to the target.
-  * Permission: `nbtr.command.give_item`
+  * Permission: `recipes.command.give_item`
 
 <br />
 
@@ -79,7 +79,7 @@ Can be used to select individual items (or registered items), or multiple items 
 "input": { "material": "minecraft:iron_axe", "nbt": "{Damage:157}" }
 ```
 ```json5
-// Item 'ruby' must be registered using the `/nbtrecipes register_item` command.
+// Item 'ruby' must be registered using the `/recipes register_item` command.
 "input": { "registered_item": "ruby" }
 ```
 ```json5
@@ -296,10 +296,10 @@ Stonecutting recipe applies to stonecutter.
 ## Contributing
 
 To contribute to this repository just fork this repository make your changes or add your code and make a pull request.
-If you find an error or a bug you can open an issue [here](https://github.com/LoreSchaeffer/NBTRecipes/issues).
+If you find an error or a bug you can open an issue [here](https://github.com/Grabsky/Recipes/issues).
 
 <br />
 
 ## License
 
-NBTRecipes is released under "The 3-Clause BSD License". You can find a copy [here](https://github.com/LoreSchaeffer/NBTRecipes/blob/master/LICENSE).
+**Recipes** is released under **"The 3-Clause BSD License"**. You can find a copy in the **LICENSE** file in the root directory of this repository.
