@@ -41,25 +41,18 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class ShapedRecipeWrapper extends RecipeWrapper {
+
+    @SerializedName("pattern")
     private String[] pattern;
 
     @SerializedName("key")
     private Map<Character, RecipeChoice> patternKey;
 
+    @SerializedName("result")
     private Item result;
 
     public ShapedRecipeWrapper() {
         super(Type.SHAPED);
-    }
-
-    @Override
-    public ShapedRecipe toBukkit() {
-        ShapedRecipe recipe = new ShapedRecipe(super.key, result.toItemStack());
-        recipe.shape(pattern);
-
-        patternKey.forEach(recipe::setIngredient);
-
-        return recipe;
     }
 
     @Override
@@ -97,4 +90,16 @@ public final class ShapedRecipeWrapper extends RecipeWrapper {
         // If all above checks have passed and result is not null and valid, returning true.
         return result != null && result.isValid();
     }
+
+    @Override
+    public ShapedRecipe toBukkit() {
+        // Creating new ShapedRecipe of specific shape.
+        final ShapedRecipe recipe = new ShapedRecipe(super.key, result.toItemStack())
+                .shape(pattern);
+        // Setting specified ingredients on the recipe.
+        patternKey.forEach(recipe::setIngredient);
+        // Returning the recipe.
+        return recipe;
+    }
+
 }

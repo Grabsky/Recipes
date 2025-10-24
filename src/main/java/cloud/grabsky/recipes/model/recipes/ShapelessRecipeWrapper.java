@@ -49,19 +49,23 @@ public final class ShapelessRecipeWrapper extends RecipeWrapper {
 
     @Override
     public ShapelessRecipe toBukkit() {
-        ShapelessRecipe recipe = new ShapelessRecipe(super.key, result.toItemStack());
-
+        // Creating new ShapelessRecipe instance.
+        final ShapelessRecipe recipe = new ShapelessRecipe(super.key, result.toItemStack());
+        // Adding specified ingredients to the recipe.
         ingredients.forEach(recipe::addIngredient);
-
+        // Returning the recipe.
         return recipe;
     }
 
     @Override
     public boolean isValid() {
-        if (ingredients == null || ingredients.isEmpty() || ingredients.size() > 9) return false;
-
-        if (ingredients.stream().anyMatch(Objects::isNull)) return false;
-
+        // Returning 'false' if no ingredient is specified, or if total number of ingredients exceeds 9.
+        if (ingredients == null || ingredients.isEmpty() == true || ingredients.size() > 9)
+            return false;
+        // Returning 'false' if any of the ingredients is null.
+        if (ingredients.stream().anyMatch(Objects::isNull) == true)
+            return false;
+        // ...
         return result != null && result.isValid();
     }
 }

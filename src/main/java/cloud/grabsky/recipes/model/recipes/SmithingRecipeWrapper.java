@@ -33,15 +33,23 @@
 package cloud.grabsky.recipes.model.recipes;
 
 import cloud.grabsky.recipes.model.Item;
-import org.bukkit.Bukkit;
+import com.google.gson.annotations.SerializedName;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.SmithingRecipe;
 import org.bukkit.inventory.SmithingTransformRecipe;
 
-public class SmithingRecipeWrapper extends RecipeWrapper {
+public final class SmithingRecipeWrapper extends RecipeWrapper {
+
+    @SerializedName("base")
     private RecipeChoice base;
+
+    @SerializedName("addition")
     private RecipeChoice addition;
+
+    @SerializedName("template")
     private RecipeChoice template;
+
+    @SerializedName("result")
     private Item result;
 
     public SmithingRecipeWrapper() {
@@ -49,14 +57,13 @@ public class SmithingRecipeWrapper extends RecipeWrapper {
     }
 
     @Override
-    public SmithingRecipe toBukkit() {
-        return (Bukkit.getUnsafe().getProtocolVersion() >= 763)
-                ? new SmithingTransformRecipe(super.key, result.toItemStack(), template, base, addition)
-                : new SmithingRecipe(super.key, result.toItemStack(), base, addition);
-    }
-
-    @Override
     public boolean isValid() {
         return base != null && addition != null && result != null && result.isValid();
     }
+
+    @Override
+    public SmithingRecipe toBukkit() {
+        return new SmithingTransformRecipe(super.key, result.toItemStack(), template, base, addition);
+    }
+
 }

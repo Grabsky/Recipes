@@ -158,7 +158,7 @@ public class Recipes extends JavaPlugin {
             this.getLogger().warning("You're running a development build of Recipes. Keep in mind that it may contain bugs and compatibility issues.");
         // Checking whether the server is running Folia and displaying a warning message accordingly.
         if (isFolia == true)
-            this.getLogger().severe("Looks like you're using Folia. While the plugin should technically support it, due to the experimental state of this software some things may not work as expected. Make sure to report any issues to our issue tracker on GitHub.");
+            this.getLogger().severe("Looks like you're using Folia. Make sure to report any issues to our issue tracker on GitHub.");
         // Creating new instance of CustomItemRegistry.
         this.customItemRegistry = new CustomItemRegistry(this);
         // Reloading the plugin, and disabling it if something goes wrong.
@@ -206,12 +206,12 @@ public class Recipes extends JavaPlugin {
         // Registering the recipes.
         registerRecipes();
         // Sending information to the console. (Commented out because it is inaccurate)
-        // this.getLogger().info("Registered " + registeredRecipes.size() + " out of " + recipes.size() + " recipes.");
+        this.getLogger().info("Loaded and registered " + registeredRecipes.size() + " recipes.");
         // Returning...
         return true;
     }
 
-    private void loadRecipes(File dir) {
+    private void loadRecipes(final @NotNull File dir) {
         final File[] files = dir.listFiles();
         // Returning if there is no files in the specified dir.
         if (files == null || files.length == 0) {

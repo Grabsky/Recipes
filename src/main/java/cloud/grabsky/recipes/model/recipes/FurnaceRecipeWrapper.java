@@ -31,28 +31,33 @@
  */
 package cloud.grabsky.recipes.model.recipes;
 
-import com.google.gson.annotations.SerializedName;
 import cloud.grabsky.recipes.model.Item;
-import org.bukkit.inventory.Recipe;
+import com.google.gson.annotations.SerializedName;
 import org.bukkit.inventory.RecipeChoice;
 
+import org.jetbrains.annotations.NotNull;
+
 public abstract class FurnaceRecipeWrapper extends RecipeWrapper {
+
+    @SerializedName("input")
     protected RecipeChoice input;
+
+    @SerializedName("result")
     protected Item result;
+
+    @SerializedName("experience")
     protected Float experience;
 
     @SerializedName("cooking_time")
     protected Integer cookingTime;
 
-    public FurnaceRecipeWrapper(Type type) {
+    public FurnaceRecipeWrapper(final @NotNull Type type) {
         super(type);
     }
-
-    @Override
-    public abstract Recipe toBukkit();
 
     @Override
     public boolean isValid() {
         return input != null && result != null && result.isValid();
     }
+
 }

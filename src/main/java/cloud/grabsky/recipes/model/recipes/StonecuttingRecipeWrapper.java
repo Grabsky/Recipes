@@ -32,11 +32,16 @@
 package cloud.grabsky.recipes.model.recipes;
 
 import cloud.grabsky.recipes.model.Item;
+import com.google.gson.annotations.SerializedName;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.StonecuttingRecipe;
 
-public class StonecuttingRecipeWrapper extends RecipeWrapper {
+public final class StonecuttingRecipeWrapper extends RecipeWrapper {
+
+    @SerializedName("input")
     private RecipeChoice input;
+
+    @SerializedName("result")
     private Item result;
 
     public StonecuttingRecipeWrapper() {
@@ -44,12 +49,13 @@ public class StonecuttingRecipeWrapper extends RecipeWrapper {
     }
 
     @Override
+    public boolean isValid() {
+        return input != null && result != null && result.isValid();
+    }
+
+    @Override
     public StonecuttingRecipe toBukkit() {
         return new StonecuttingRecipe(super.key, result.toItemStack(), input);
     }
 
-    @Override
-    public boolean isValid() {
-        return input != null && result != null && result.isValid();
-    }
 }

@@ -4,9 +4,11 @@ plugins {
     id("de.eldoria.plugin-yml.paper") version "0.8.0"
 }
 
+final String VERSION = "2.0.0"
+final String RUN_NUMBER = System.getenv("GITHUB_RUN_NUMBER") ?: "DEV"
+
 group = "cloud.grabsky"
-version = "2.0.0-SNAPSHOT"
-description = "Recipes"
+version = "$VERSION+$RUN_NUMBER"
 
 repositories {
     mavenLocal()
@@ -34,7 +36,7 @@ tasks {
     }
     compileJava {
         options.fork = true
-        options.compilerArgs += ["-parameters"]
+        options.compilerArgs += "-parameters"
         // Setting compatibility to Java 21 and higher.
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21

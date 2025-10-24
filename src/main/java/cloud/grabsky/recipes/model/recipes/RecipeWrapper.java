@@ -32,20 +32,21 @@
  */
 package cloud.grabsky.recipes.model.recipes;
 
+import cloud.grabsky.recipes.model.DiscoverTrigger;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
-import cloud.grabsky.recipes.model.DiscoverTrigger;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.Recipe;
 
 import java.util.Arrays;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -53,16 +54,18 @@ import lombok.RequiredArgsConstructor;
 
 @JsonAdapter(RecipeWrapper.Adapter.class)
 public abstract class RecipeWrapper {
-    protected String type;
-
-    @SerializedName("discover")
-    @Getter(AccessLevel.PUBLIC)
-    protected DiscoverTrigger discoverTrigger;
 
     @Getter(AccessLevel.PUBLIC)
     protected transient NamespacedKey key;
 
-    public RecipeWrapper(Type type) {
+    @SerializedName("type")
+    protected String type;
+
+    @Getter(AccessLevel.PUBLIC)
+    @SerializedName("discover")
+    protected DiscoverTrigger discoverTrigger;
+
+    public RecipeWrapper(final @NotNull Type type) {
         this.type = type.getType();
     }
 
@@ -70,16 +73,18 @@ public abstract class RecipeWrapper {
         return Type.getFromString(type);
     }
 
-    public void init(NamespacedKey namespacedKey) {
+    public void init(final @NotNull NamespacedKey namespacedKey) {
         this.key = namespacedKey;
     }
-
-    /** Converts this {@link RecipeWrapper} to Bukkit's {@link Recipe} object. */
-    public abstract Recipe toBukkit();
 
     /** Returns {@code true} if this recipe is valid. */
     public abstract boolean isValid();
 
+    /** Converts this {@link RecipeWrapper} to Bukkit's {@link Recipe} object. */
+    public abstract Recipe toBukkit();
+
+
+    /** Represents a supported recipe type. */
     @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
     public enum Type {
         SHAPED("crafting_shaped", ShapedRecipeWrapper.class),
@@ -109,31 +114,25 @@ public abstract class RecipeWrapper {
             return null;
         }
 
-        // Returns list of valid (json) types for all supported recipes.
-        public static String[] types() {
-            return TYPES;
-        }
-
     }
 
-    public static final class Adapter implements JsonSerializer<RecipeWrapper>, JsonDeserializer<RecipeWrapper> {
+    public static final class Adapter implements JsonDeserializer<RecipeWrapper> {
 
         @Override
-        public RecipeWrapper deserialize(JsonElement json, java.lang.reflect.Type type, JsonDeserializationContext ctx) throws JsonParseException {
-            if (!json.isJsonObject()) throw new JsonParseException("Expected JsonObject but found " + json.getClass().getSimpleName() + ".");
-
-            JsonObject obj = json.getAsJsonObject();
-            if (!obj.has("type")) throw new JsonParseException("Required property \"type\" has not been specified. Must be one of " + Arrays.toString(Type.types()));
-
-            Type t = Type.getFromString(obj.get("type").getAsString());
-            if (t == null) throw new JsonParseException("Required property \"type\" is not a valid recipe type. Must be one of " + Arrays.toString(Type.types()));
-
-            return ctx.deserialize(json, t.getRecipeClass());
-        }
-
-        @Override
-        public JsonElement serialize(RecipeWrapper recipe, java.lang.reflect.Type type, JsonSerializationContext ctx) {
-            return ctx.serialize(recipe, type);
+        public RecipeWrapper deserialize(final @NotNull JsonElement json, final @NotNull java.lang.reflect.Type classType, final @NotNull JsonDeserializationContext ctx) throws JsonParseException {
+            if (json instanceof JsonObject object) {
+                // Reading the recipe type.
+                final @Nullable RecipeWrapper.Type type = (object.has("type") == true && object.get("type").isJsonPrimitive() == true)
+                        ? RecipeWrapper.Type.getFromString(object.get("type").getAsString())
+                        : null;
+                // Delegating to the appropriate deserializer.
+                if (type != null)
+                    return ctx.deserialize(json, type.recipeClass);
+                // Throwing exception if 'type' property does not exist or is invalid.
+                throw new JsonParseException("Required property \"type\" has not been specified or is invalid. Must be one of " + Arrays.toString(Type.TYPES));
+            }
+            // Throwing exception if JsonElement is not a JsonObject.
+            throw new JsonParseException("Expected JsonObject but found " + json.getClass().getSimpleName() + ".");
         }
 
     }
