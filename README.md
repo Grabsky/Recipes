@@ -56,10 +56,10 @@ Description of recipe components and their capabilities.
 
 ### 2.1. Item
 Item is an object that represents an item in the recipes. It can be used as an ingredient, input or as a result.
-Majority of fields are optional; in fact, only either `material` or `registered_item` is required.
+Majority of fields are optional; in fact, only either `type` or `registered_item` is required.
 
 ### 2.2. Tag
-Tags, specifically material tags, may be described as groups of materials. They're an actual vanilla feature and are commonly referenced in various parts of the game.
+Tags, specifically type tags, may be described as groups of types. They're an actual vanilla feature and are commonly referenced in various parts of the game.
 
 They can be used in all ingredient or input slots, but cannot be mixed together with different choice types.
 When the input field of a smelting recipe is set to tag `mincraft:boats` and result is set to `coal_block`, this allows all types of boats to be smelted into a block of coal.
@@ -74,9 +74,9 @@ Most ingredient or input slots are expected to consist of exactly one choice, wh
 Please refer to [Examples](#examples) section below for more details.
 
 #### 2.3.1. Item(s) Choice
-Can be used to select individual items (or registered items), or multiple items defined as an array. If no elements have metadata specified (nbt, name, lore), the recipe will compare items based on their material.
+Can be used to select individual items (or registered items), or multiple items defined as an array. If no elements have metadata specified (nbt, name, lore), the recipe will compare items based on their type.
 ```json5
-"input": { "material": "minecraft:iron_axe", "nbt": "{Damage:157}" }
+"input": { "type": "minecraft:iron_axe", "nbt": "{Damage:157}" }
 ```
 ```json5
 // Item 'ruby' must be registered using the `/recipes register_item` command.
@@ -84,15 +84,15 @@ Can be used to select individual items (or registered items), or multiple items 
 ```
 ```json5
 "input": [
-  { "material": "minecraft:stone" },
-  { "material": "minecraft:cobblestone" }
+  { "type": "minecraft:stone" },
+  { "type": "minecraft:cobblestone" }
 ]
 ```
 ```json5
 // Registered items and normal items can be mixed together.
 "input": [
-  { "material": "minecraft:cod" },
-  { "material": "minecraft:salmon" },
+  { "type": "minecraft:cod" },
+  { "type": "minecraft:salmon" },
   { "registered_item": "raw_mackerel" },
   { "registered_item": "raw_shrimp" },
   { "registered_item": "raw_tuna" },
@@ -101,7 +101,7 @@ Can be used to select individual items (or registered items), or multiple items 
 ]
 ```
 #### 2.3.2. Tag Choice
-Can be used to select individual group of items. Recipe will compare items based on their material.
+Can be used to select individual group of items. Recipe will compare items based on their type.
 ```json5
 "input": { "tag": "minecraft:boats" }
 ```
@@ -138,14 +138,14 @@ Shaped recipe applies to crafting table and inventory crafting.
   // Each character must be mapped to exactly one recipe choice, which can be an array with multiple elements.
   "key": {
     "S": [
-      { "material": "stick" },
-      { "material": "blaze_rod" }
+      { "type": "stick" },
+      { "type": "blaze_rod" }
     ],
-    "D": { "material": "diamond" }
+    "D": { "type": "diamond" }
   },
   // Recipe result.
   "result": {
-    "material": "diamond_sword",
+    "type": "diamond_sword",
     "amount": 1,
     "name": "Diagonally Crafted Diamond Sword",
     "lore": [
@@ -157,7 +157,7 @@ Shaped recipe applies to crafting table and inventory crafting.
   "discover": {
     // Items that discovers the recipe. List of recipe choices. Each choice can be an array with multiple elements.
     "items": [
-      { "material": "diamond" }
+      { "type": "diamond" }
     ]
   }
 }
@@ -177,16 +177,16 @@ Shapeless recipe applies to crafting table and inventory crafting.
   // Crafting ingredients. List of recipe choices. Each choice can be an array with multiple elements.
   "ingredients": [
     { "tag": "minecraft:logs" },
-    { "material": "flint_and_steel" }
+    { "type": "flint_and_steel" }
   ],
   // Recipe result.
-  "result": { "material": "charcoal" },
+  "result": { "type": "charcoal" },
   // Recipe discover trigger. Optional.
   "discover": {
     // Items that discovers the recipe. List of recipe choices. Each choice can be an array with multiple elements.
     "items": [
       { "tag": "minecraft:logs" },
-      { "material": "flint_and_steel" },
+      { "type": "flint_and_steel" },
     ]
   }
 }
@@ -206,13 +206,13 @@ Smelting recipes can be applied to regular furnace, blast furnace, smoker or cam
   "type": "smelting",
   // Furnace input. Exactly one recipe choice, which can be an array with multiple elements.
   "input": [
-    { "material": "diamond_helmet" },
-    { "material": "diamond_chestplate" },
-    { "material": "diamond_leggings" },
-    { "material": "diamond_boots" }
+    { "type": "diamond_helmet" },
+    { "type": "diamond_chestplate" },
+    { "type": "diamond_leggings" },
+    { "type": "diamond_boots" }
   ],
   // Recipe result.
-  "result": { "material": "diamond" },
+  "result": { "type": "diamond" },
   // Experience to award player after taking smelting result. Optional.
   "experience": 0.7,
   // Time it takes to cook this recipe. Measured in ticks. Optional.
@@ -221,10 +221,10 @@ Smelting recipes can be applied to regular furnace, blast furnace, smoker or cam
   "discover": {
     // Items that discovers the recipe. List of recipe choices. Each choice can be an array with multiple elements.
     "items": [
-      { "material": "diamond_helmet" },
-      { "material": "diamond_chestplate" },
-      { "material": "diamond_leggings" },
-      { "material": "diamond_boots" }
+      { "type": "diamond_helmet" },
+      { "type": "diamond_chestplate" },
+      { "type": "diamond_leggings" },
+      { "type": "diamond_boots" }
     ]
   }
 }
@@ -244,20 +244,20 @@ Smithing recipe applies to smithing table.
   "type": "smithing",
   // Base item, you can think of it as an item which upgrades (could) be applied to.
   // Exactly one recipe choice. Can be an array with multiple elements.
-  "base": { "material": "iron_pickaxe" },
+  "base": { "type": "iron_pickaxe" },
   // Template item, you can think of it as an upgrade which is applied to the base item. Requires 1.20 or higher.
   // Exactly one recipe choice. Can be an array with multiple elements.
-  "template": { "material": "air" },
+  "template": { "type": "air" },
   // Addition item. For vanilla recipes, it's usually a trim material.
   // Exactly one recipe choice. Can be an array with multiple elements.
-  "addition": { "material": "diamond" },
+  "addition": { "type": "diamond" },
   // Recipe result. Metadata is not supported as it's copied directly from the base item.
-  "result": { "material": "diamond_pickaxe" },
+  "result": { "type": "diamond_pickaxe" },
   // Recipe discover trigger. Optional.
   "discover": {
     // Items that discovers the recipe. List of recipe choices. Each choice can be an array with multiple elements.
     "items": [
-      { "material": "iron_pickaxe" }
+      { "type": "iron_pickaxe" }
     ]
   }
 }
@@ -276,14 +276,14 @@ Stonecutting recipe applies to stonecutter.
 {
   "type": "stonecutting",
   // Recipe input. Exactly one recipe choice, which can be an array with multiple elements.
-  "input": { "material": "oak_planks" },
+  "input": { "type": "oak_planks" },
   // Recipe result.
-  "result": { "material": "oak_stairs" },
+  "result": { "type": "oak_stairs" },
   // Recipe discover trigger. Optional.
   "discover": {
     // Items that discovers the recipe. List of recipe choices. Each choice can be an array with multiple elements.
     "items": [
-      { "material": "oak_planks" }
+      { "type": "oak_planks" }
     ]
   }
 }

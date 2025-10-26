@@ -33,7 +33,6 @@
 package cloud.grabsky.recipes.command;
 
 import cloud.grabsky.recipes.Recipes;
-import cloud.grabsky.recipes.registry.CustomItemRegistry;
 import cloud.grabsky.recipes.utils.Extensions;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -42,8 +41,12 @@ import revxrsal.commands.annotation.Command;
 import revxrsal.commands.annotation.Dependency;
 import revxrsal.commands.annotation.Optional;
 import revxrsal.commands.annotation.SuggestWith;
+import revxrsal.commands.autocomplete.SuggestionProvider;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
+import revxrsal.commands.node.ExecutionContext;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -132,7 +135,7 @@ public enum RecipesCommand {
     @CommandPermission("recipes.command.unregister_item")
     public String onUnregisterItem(
             final @NotNull CommandSender sender,
-            final @NotNull @SuggestWith(CustomItemRegistry.Suggestions.class) String identifier
+            final @NotNull @SuggestWith(CustomItemSuggestions.class) String identifier
     ) {
         // Registering the item and sending message when successful.
         if (plugin.customItemRegistry().remove(identifier) == true)
@@ -146,7 +149,7 @@ public enum RecipesCommand {
     public String onGiveItem(
             final @NotNull CommandSender sender,
             final @NotNull Player target,
-            final @NotNull @SuggestWith(CustomItemRegistry.Suggestions.class) String identifier,
+            final @NotNull @SuggestWith(CustomItemSuggestions.class) String identifier,
             final @Nullable @Optional Integer amount) {
         final @Nullable ItemStack item = plugin.customItemRegistry().get(identifier);
         // Checking whether the item exists and is not empty, and giving it to the target.
@@ -164,6 +167,18 @@ public enum RecipesCommand {
         }
         // Sending error message to the sender.
         return plugin.configuration().messages().commandRecipesGiveItemFailure().repl("{identifier}", identifier);
+    }
+
+
+    /* COMMAND SUGGESTION PROVIDER */
+
+    public static final class CustomItemSuggestions implements SuggestionProvider<BukkitCommandActor> {
+
+        @Override
+        public @NotNull Collection<String> getSuggestions(final @NotNull ExecutionContext<BukkitCommandActor> executionContext) {
+            return Recipes.instance().customItemRegistry().allKeys();
+        }
+
     }
 
 }

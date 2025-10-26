@@ -42,8 +42,8 @@ import lombok.Getter;
 
 public final class DiscoverTrigger {
 
-    @SerializedName("items")
     @Getter(AccessLevel.PUBLIC)
+    @SerializedName("items")
     private List<RecipeChoice> requiredChoices;
 
 }

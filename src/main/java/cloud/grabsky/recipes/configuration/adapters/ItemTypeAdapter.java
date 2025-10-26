@@ -36,27 +36,36 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import org.bukkit.Material;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.ItemType;
 
 import java.lang.reflect.Type;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public enum MaterialAdapter implements JsonSerializer<Material>, JsonDeserializer<Material> {
+@SuppressWarnings("UnstableApiUsage")
+public enum ItemTypeAdapter implements JsonDeserializer<ItemType> {
     INSTANCE; // SINGLETON
 
     @Override
-    public @Nullable JsonElement serialize(final @Nullable Material value, final @NotNull Type type, final @NotNull JsonSerializationContext context) {
-        return (value != null) ? new JsonPrimitive(value.getKey().asString()) : null;
-    }
-
-    @Override
-    public @Nullable Material deserialize(final @NotNull JsonElement json, final @NotNull Type type, final @NotNull JsonDeserializationContext context) throws JsonParseException {
-        return (json.isJsonPrimitive() == true) ? Material.matchMaterial(json.getAsString()) : null;
+    public @NotNull ItemType deserialize(final @NotNull JsonElement element, final @NotNull Type classType, final @NotNull JsonDeserializationContext context) throws JsonParseException {
+        // Getting the element value as string.
+        final String value = element.getAsString();
+        // Creating a NamespacedKey instance from the value. Can be null if invalid.
+        final @Nullable NamespacedKey key = NamespacedKey.fromString(value);
+        // Throwing an exception if key is null or NamespacedKey validation fails.
+        if (key == null)
+            throw new JsonParseException("Key \"" + value + "\" is not a valid resource location / namespaced key.");
+        // Getting the item type from the registry.
+        final @Nullable ItemType type = RegistryAccess.registryAccess().getRegistry(RegistryKey.ITEM).get(key);
+        // Throwing an exception if item type is null.
+        if (type == null)
+            throw new JsonParseException("Key \"" + value + "\" does not point to any item type.");
+        // Returning...
+        return type;
     }
 
 }

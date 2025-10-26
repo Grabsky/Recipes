@@ -32,21 +32,21 @@
  */
 package cloud.grabsky.recipes;
 
+import cloud.grabsky.recipes.command.RecipesCommand;
+import cloud.grabsky.recipes.configuration.PluginConfiguration;
+import cloud.grabsky.recipes.configuration.adapters.ItemTypeAdapter;
+import cloud.grabsky.recipes.configuration.adapters.RecipeChoiceAdapter;
+import cloud.grabsky.recipes.listeners.DiscoverTriggerListener;
+import cloud.grabsky.recipes.model.recipes.RecipeWrapper;
+import cloud.grabsky.recipes.registry.CustomItemRegistry;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
-import cloud.grabsky.recipes.command.RecipesCommand;
-import cloud.grabsky.recipes.configuration.PluginConfiguration;
-import cloud.grabsky.recipes.configuration.adapters.MaterialAdapter;
-import cloud.grabsky.recipes.configuration.adapters.RecipeChoiceAdapter;
-import cloud.grabsky.recipes.listeners.DiscoverTriggerListener;
-import cloud.grabsky.recipes.model.recipes.RecipeWrapper;
-import cloud.grabsky.recipes.registry.CustomItemRegistry;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.aether.artifact.DefaultArtifact;
@@ -86,10 +86,11 @@ import lombok.experimental.Accessors;
 // TO-DO: Recipe Editor (GUI) (?)
 // TO-DO: Improve performance by skipping recipes that are already registered and have not changed.
 @Accessors(fluent = true)
+@SuppressWarnings("UnstableApiUsage") // ItemType
 public class Recipes extends JavaPlugin {
 
     private static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(Material.class, MaterialAdapter.INSTANCE)
+            .registerTypeAdapter(ItemType.class, ItemTypeAdapter.INSTANCE)
             .registerTypeAdapter(RecipeChoice.class, RecipeChoiceAdapter.INSTANCE)
             .disableHtmlEscaping()
             .setPrettyPrinting()

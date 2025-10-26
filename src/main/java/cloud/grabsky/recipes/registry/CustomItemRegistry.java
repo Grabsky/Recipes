@@ -31,15 +31,12 @@
  */
 package cloud.grabsky.recipes.registry;
 
+import cloud.grabsky.recipes.Recipes;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import cloud.grabsky.recipes.Recipes;
 import org.bukkit.inventory.ItemStack;
-import revxrsal.commands.autocomplete.SuggestionProvider;
-import revxrsal.commands.bukkit.actor.BukkitCommandActor;
-import revxrsal.commands.node.ExecutionContext;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -177,19 +174,6 @@ public final class CustomItemRegistry {
 
     public @NotNull @Unmodifiable Map<String, ItemStack> all() {
         return ImmutableMap.copyOf(registry);
-    }
-
-
-    /* COMMAND SUGGESTION PROVIDER */
-
-    public enum Suggestions implements SuggestionProvider<BukkitCommandActor> {
-        INSTANCE; // SINGLETON
-
-        @Override
-        public @NotNull Collection<String> getSuggestions(final @NotNull ExecutionContext<BukkitCommandActor> executionContext) {
-            return Recipes.instance().customItemRegistry().allKeys();
-        }
-
     }
 
 }

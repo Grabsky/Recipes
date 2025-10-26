@@ -32,17 +32,18 @@
  */
 package cloud.grabsky.recipes.configuration.adapters;
 
+import cloud.grabsky.recipes.model.Item;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
-import cloud.grabsky.recipes.model.Item;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.RecipeChoice;
 
 import java.lang.reflect.Type;
@@ -51,25 +52,25 @@ import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("UnstableApiUsage") // ItemType
 public enum RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice> {
     INSTANCE; // SINGLETON
 
     @Override
     public RecipeChoice deserialize(final @NotNull JsonElement json, final Type type, final JsonDeserializationContext context) throws JsonParseException {
         // Reading as single object.
-        if (json.isJsonObject()) {
-            if (json.getAsJsonObject().get("material") != null || json.getAsJsonObject().get("registered_item") != null) {
+        if (json.isJsonObject() == true) {
+            if (json.getAsJsonObject().get("type") != null || json.getAsJsonObject().get("registered_item") != null) {
                 final Item item = context.deserialize(json, Item.class);
                 // Throwing an exception if item validation fails.
-                if (!item.isValid())
-                    throw new JsonParseException("Required property \"material\" does not exist.");
-                // Returning null if material was set to air. 1.20.5+ don't support air in recipes.
-                if (item.getMaterial() == Material.AIR) {
+                if (item.isValid() == false)
+                    throw new JsonParseException("Required property \"type\" does not exist.");
+                // Returning null if item type was set to air.
+                if (isNotAir(item) == false)
                     return RecipeChoice.empty();
-                }
                 // Returning MaterialChoice if metadata is empty, or ExactChoice otherwise.
                 try {
-                    return (item.getComponents() == null && !item.toItemStack().hasItemMeta())
+                    return (item.getComponents() == null && item.toItemStack().hasItemMeta() == false)
                             ? new RecipeChoice.MaterialChoice(item.toItemStack().getType())
                             : new RecipeChoice.ExactChoice(item.toItemStack());
                 } catch (final IllegalArgumentException e) {
@@ -86,19 +87,20 @@ public enum RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice> {
                 // Getting tag from the items registry.
                 final Tag<Material> tag = Bukkit.getTag(Tag.REGISTRY_ITEMS, NamespacedKey.fromString(key), Material.class);
                 // Throwing an exception if tag is null.
-                if (tag == null) throw new JsonParseException("Required property \"tag\" does not represent a valid material tag.");
+                if (tag == null)
+                    throw new JsonParseException("Required property \"tag\" does not represent a valid material tag.");
                 // Returning MaterialChoice if metadata is empty, or ExactChoice otherwise.
                 return new RecipeChoice.MaterialChoice(tag);
             }
             // Throwing exception for unexpected input.
-            throw new JsonParseException("Expected JsonObject with either the \"material\" or \"tag\" property, but neither was found.");
+            throw new JsonParseException("Expected JsonObject with either the \"type\" or \"tag\" property, but neither was found.");
         }
         // Reading as array of objects.
-        else if (json.isJsonArray()) {
+        else if (json.isJsonArray() == true) {
             final List<Item> items = context.deserialize(json, TypeToken.getParameterized(List.class, Item.class).getType());
             // Throwing an exception if validation of any item fails.
-            if (!items.stream().filter(RecipeChoiceAdapter::isNotAir).allMatch(Item::isValid))
-                throw new JsonParseException("Required property \"material\" does not exist on one or more elements.");
+            if (items.stream().filter(RecipeChoiceAdapter::isNotAir).allMatch(Item::isValid) == false)
+                throw new JsonParseException("Required property \"type\" does not exist on one or more elements.");
             // Returning MaterialChoice if metadata of all items is empty, or ExactChoice otherwise.
             try {
                 return (items.stream().filter(RecipeChoiceAdapter::isNotAir).noneMatch(it -> it.getComponents() != null || it.toItemStack().hasItemMeta()))
@@ -113,7 +115,7 @@ public enum RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice> {
     }
 
     private static boolean isNotAir(final Item item) {
-        return item.getMaterial() != Material.AIR;
+        return item.getType() != ItemType.AIR;
     }
 
 }
