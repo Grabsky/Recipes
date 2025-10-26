@@ -7,7 +7,8 @@
 [![Discord](https://img.shields.io/discord/1366851451208601783?cacheSeconds=3600&logo=discord&logoColor=white&label=%20&labelColor=%235865F2&color=%23707BF4)](https://discord.com/invite/PuzqF2Yd5q)
 [![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/Grabsky/Recipes?logo=codefactor&logoColor=white&label=%20)](https://www.codefactor.io/repository/github/grabsky/recipes/issues/main)
 
-**Recipes** is a plugin that allows to create new, or override existing recipes using format similar to one used by data-packs.
+**Recipes** is a plugin that allows to create new, or override existing recipes.  
+Wide range of recipe types are supported. See **[Examples](#examples)** for more reference.
 
 <sup>This is a maintained fork of **[LoreSchaeffer/NBTRecipes](https://github.com/LoreSchaeffer/NBTRecipes/)** which brings a bunch of fixes and new features.</sup>
 
