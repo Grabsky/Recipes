@@ -1,7 +1,6 @@
 <div align="center">
 
-# Recipes
-
+<img src="https://i.imgur.com/PBdAaFD.png" width=75%></img>
 <!-- [![GitHub Release](https://img.shields.io/github/v/release/Grabsky/Recipes?logo=github&labelColor=%2324292F&color=%23454F5A)](https://github.com/Grabsky/Recipes/releases/latest) -->
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/recipes.?logo=modrinth&logoColor=white&label=downloads&labelColor=%23139549&color=%2318c25f)](https://modrinth.com/plugin/recipes.)
 [![Discord](https://img.shields.io/discord/1366851451208601783?cacheSeconds=3600&logo=discord&logoColor=white&label=%20&labelColor=%235865F2&color=%23707BF4)](https://discord.com/invite/PuzqF2Yd5q)
@@ -14,10 +13,12 @@ Wide range of recipe types are supported. See **[Examples](#examples)** for more
 
 </div>
 
-<br />
+<br>
 
 ## Requirements
 Plugin requires **[Paper](https://papermc.io/software/paper)** or **[Folia](https://papermc.io/software/folia)** based server and **Java 21** or higher.
+
+<br>
 
 ## Usage
 You can place your recipes inside the `recipes` folder, or any sub-folder within this directory. Plugin automatically search them recursively and add their relative path to the recipe key.
