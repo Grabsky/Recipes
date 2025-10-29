@@ -32,6 +32,7 @@
  */
 package cloud.grabsky.recipes;
 
+import cloud.grabsky.bstats.Metrics;
 import cloud.grabsky.recipes.command.RecipesCommand;
 import cloud.grabsky.recipes.configuration.PluginConfiguration;
 import cloud.grabsky.recipes.configuration.adapters.ItemTypeAdapter;
@@ -181,7 +182,7 @@ public class Recipes extends JavaPlugin {
         // Registering command(s).
         lamp.register(RecipesCommand.INSTANCE);
         // Starting bStats...
-        // new Metrics(this, 17319);
+        new Metrics(this, 27768);
     }
 
     public boolean onReload() {

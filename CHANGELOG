@@ -9,6 +9,7 @@ NBTRecipes 2.0.0
 - CHANGE: Original dependencies (MBCore, MCLib) were replaced with Revxrsal/Lamp and Revxrsal/Spec.
 - CHANGE: Dependencies are no longer bundled / shaded and are now loaded dynamically in the runtime.
 - CHANGE: Command /nbtr has been renamed to /recipes.
+- CHANGE: Replace bStats metrics identifier with a new one.
 - NEW: Support for 1.20.5+ item components through the 'components' property.
 - NEW: Exception minimization is now configurable and enabled by default.
 - NEW: Custom Item Registry for easier management of custom items.
