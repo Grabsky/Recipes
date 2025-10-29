@@ -45,7 +45,7 @@ public final class StonecuttingRecipeWrapper extends RecipeWrapper {
     private Item result;
 
     public StonecuttingRecipeWrapper() {
-        super(Type.STONECUTTING_RECIPE);
+        super(RecipeWrapper.Type.STONECUTTING);
     }
 
     @Override

@@ -37,7 +37,7 @@ import org.bukkit.inventory.FurnaceRecipe;
 public final class SmeltingRecipeWrapper extends FurnaceRecipeWrapper {
 
     public SmeltingRecipeWrapper() {
-        super(Type.SMELTING);
+        super(RecipeWrapper.Type.SMELTING);
     }
 
     @Override

@@ -35,6 +35,7 @@ package cloud.grabsky.recipes;
 import cloud.grabsky.bstats.Metrics;
 import cloud.grabsky.recipes.command.RecipesCommand;
 import cloud.grabsky.recipes.configuration.PluginConfiguration;
+import cloud.grabsky.recipes.configuration.adapters.GenericEnumAdapter;
 import cloud.grabsky.recipes.configuration.adapters.ItemTypeAdapter;
 import cloud.grabsky.recipes.configuration.adapters.RecipeChoiceAdapter;
 import cloud.grabsky.recipes.listeners.DiscoverTriggerListener;
@@ -93,6 +94,7 @@ public class Recipes extends JavaPlugin {
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(ItemType.class, ItemTypeAdapter.INSTANCE)
             .registerTypeAdapter(RecipeChoice.class, RecipeChoiceAdapter.INSTANCE)
+            .registerTypeAdapter(RecipeWrapper.Type.class, new GenericEnumAdapter<>(RecipeWrapper.Type.class, false))
             .disableHtmlEscaping()
             .setPrettyPrinting()
             .create();

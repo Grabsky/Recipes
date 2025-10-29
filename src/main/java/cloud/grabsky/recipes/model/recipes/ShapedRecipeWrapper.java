@@ -52,7 +52,7 @@ public final class ShapedRecipeWrapper extends RecipeWrapper {
     private Item result;
 
     public ShapedRecipeWrapper() {
-        super(Type.SHAPED);
+        super(RecipeWrapper.Type.CRAFTING_SHAPELESS);
     }
 
     @Override

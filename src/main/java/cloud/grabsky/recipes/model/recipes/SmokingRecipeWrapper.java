@@ -37,7 +37,7 @@ import org.bukkit.inventory.SmokingRecipe;
 public final class SmokingRecipeWrapper extends FurnaceRecipeWrapper {
 
     public SmokingRecipeWrapper() {
-        super(Type.SMOKING);
+        super(RecipeWrapper.Type.SMOKING);
     }
 
     @Override

@@ -51,7 +51,7 @@ public abstract class FurnaceRecipeWrapper extends RecipeWrapper {
     @SerializedName("cooking_time")
     protected Integer cookingTime;
 
-    public FurnaceRecipeWrapper(final @NotNull Type type) {
+    public FurnaceRecipeWrapper(final @NotNull RecipeWrapper.Type type) {
         super(type);
     }
 

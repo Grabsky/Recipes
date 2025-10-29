@@ -37,7 +37,7 @@ import org.bukkit.inventory.BlastingRecipe;
 public final class BlastingRecipeWrapper extends FurnaceRecipeWrapper {
 
     public BlastingRecipeWrapper() {
-        super(Type.BLASTING);
+        super(RecipeWrapper.Type.BLASTING);
     }
 
     @Override

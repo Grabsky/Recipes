@@ -1,7 +1,6 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2023, Lorenzo Magni
  * Copyright (c) 2025, Grabsky (michal.czopek.foss@proton.me)
  * All rights reserved.
  *
@@ -30,20 +29,44 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package cloud.grabsky.recipes.model;
+package cloud.grabsky.recipes.configuration.adapters;
 
-import com.google.gson.annotations.SerializedName;
-import org.bukkit.inventory.RecipeChoice;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 
-import java.util.List;
+import java.lang.reflect.Type;
+
+import org.jetbrains.annotations.NotNull;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
 
-public final class DiscoverTrigger {
+@Accessors(fluent = true)
+@RequiredArgsConstructor(access = AccessLevel.PUBLIC)
+public final class GenericEnumAdapter<T extends Enum<T>> implements JsonDeserializer<T> {
 
     @Getter(AccessLevel.PUBLIC)
-    @SerializedName("items")
-    private List<RecipeChoice> requiredItems;
+    private final Class<T> type;
+
+    @Getter(AccessLevel.PUBLIC)
+    private final boolean isCaseSensitive;
+
+    @Override
+    public @NotNull T deserialize(final @NotNull JsonElement element, final @NotNull Type classType, final @NotNull JsonDeserializationContext context) throws JsonParseException {
+        final String value = element.getAsString();
+        // Iterating over enum constants and matching provided value.
+        for (final T en : type.getEnumConstants()) {
+            if (isCaseSensitive == true && en.name().equals(value) == true)
+                return en;
+            else if (en.name().equalsIgnoreCase(value) == true)
+                return en;
+        }
+        // Throwing exception if no valid match was found.
+        throw new JsonParseException("Expected " + type.getName() + " but found: " + value);
+    }
 
 }

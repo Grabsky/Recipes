@@ -3,6 +3,7 @@ NBTRecipes 2.0.0
 - BREAKING: Dropped support for versions below 1.21.
 - BREAKING: Legacy text formatting is no longer supported. Please migrate to MiniMessage.
 - BREAKING: Replaced 'nbt' property with 'components' in item definitions. Legacy NBT is no longer supported.
+- BREAKING: Renamed 'material' property to 'type' in order to keep it consistent with internal naming.
 - CHANGE: Rewritten majority of the plugin code-base and simplified things where possible. A few dependencies has been dropped
 - CHANGE: Recipes are now loaded in natural order to ensure that the order is persistent throughout plugin reloads / server restarts.
 - CHANGE: Default translations now use more consistent format. A few new translations were added to the config file.
@@ -13,10 +14,10 @@ NBTRecipes 2.0.0
 - NEW: Support for 1.20.5+ item components through the 'components' property.
 - NEW: Exception minimization is now configurable and enabled by default.
 - NEW: Custom Item Registry for easier management of custom items.
-  - COMMAND: /nbtrecipes register_item (id) - Registers currently held item as a custom item.
-  - COMMAND: /nbtrecipes unregister_item (id) - Unregisters custom item with specified identifier.
-  - COMMAND: /nbtrecipes give_item (target) (id) [amount] - Gives custom item to the target.
-  - COMMAND: /nbtrecipes list_items - Lists all registered items.
+  - COMMAND: /recipes register_item (id) - Registers currently held item as a custom item.
+  - COMMAND: /recipes unregister_item (id) - Unregisters custom item with specified identifier.
+  - COMMAND: /recipes give_item (target) (id) [amount] - Gives custom item to the target.
+  - COMMAND: /recipes list_items - Lists all registered items.
   - Items can be referenced in recipes using the 'registered_item' property in place of 'tag' or 'material'.
 - FIX: UnsupportedOperationException is no longer thrown when picking up items on Folia.
 - FIX: Recipes discovery should now be more reliable and faster.

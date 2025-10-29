@@ -53,7 +53,7 @@ public final class SmithingRecipeWrapper extends RecipeWrapper {
     private Item result;
 
     public SmithingRecipeWrapper() {
-        super(Type.SMITHING_RECIPE);
+        super(RecipeWrapper.Type.SMITHING);
     }
 
     @Override

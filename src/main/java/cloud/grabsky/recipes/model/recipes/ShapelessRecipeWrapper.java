@@ -44,7 +44,7 @@ public final class ShapelessRecipeWrapper extends RecipeWrapper {
     private Item result;
 
     public ShapelessRecipeWrapper() {
-        super(Type.SHAPELESS);
+        super(RecipeWrapper.Type.CRAFTING_SHAPELESS);
     }
 
     @Override

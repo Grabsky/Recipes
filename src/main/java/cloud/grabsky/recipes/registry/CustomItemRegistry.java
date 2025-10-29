@@ -57,13 +57,11 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 public final class CustomItemRegistry {
 
-    @Getter(AccessLevel.PUBLIC)
     private final Recipes plugin;
 
     // Stores plugin-specified items in their raw form. This is populated by Gson.

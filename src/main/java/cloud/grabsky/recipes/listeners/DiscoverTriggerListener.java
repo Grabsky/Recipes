@@ -71,13 +71,13 @@ public final class DiscoverTriggerListener implements Listener {
                 if (recipe.getDiscoverTrigger() == null)
                     return true;
                     // Otherwise, testing each choice individually.
-                else if (recipe.getDiscoverTrigger().getRequiredChoices() != null && recipe.getDiscoverTrigger().getRequiredChoices().isEmpty() == false) {
+                else if (recipe.getDiscoverTrigger().getRequiredItems() != null && recipe.getDiscoverTrigger().getRequiredItems().isEmpty() == false) {
                     // Iterating over contents of player's inventory.
                     for (final @Nullable ItemStack item : player.getInventory().getContents()) {
                         if (item == null || item.getType() == Material.AIR)
                             continue;
                         // Iterating over list of choices that can discover recipe for the player.
-                        for (final RecipeChoice choice : recipe.getDiscoverTrigger().getRequiredChoices()) {
+                        for (final RecipeChoice choice : recipe.getDiscoverTrigger().getRequiredItems()) {
                             // Testing item against the current choice.
                             if (choice.test(item) == true)
                                 return true;
@@ -108,9 +108,9 @@ public final class DiscoverTriggerListener implements Listener {
                     if (recipe.getDiscoverTrigger() == null)
                         return true;
                         // Otherwise, testing each choice individually.
-                    else if (recipe.getDiscoverTrigger().getRequiredChoices() != null && recipe.getDiscoverTrigger().getRequiredChoices().isEmpty() == false) {
+                    else if (recipe.getDiscoverTrigger().getRequiredItems() != null && recipe.getDiscoverTrigger().getRequiredItems().isEmpty() == false) {
                         // Iterating over list of choices that can discover recipe for the player.
-                        for (final RecipeChoice choice : recipe.getDiscoverTrigger().getRequiredChoices()) {
+                        for (final RecipeChoice choice : recipe.getDiscoverTrigger().getRequiredItems()) {
                             // Testing item against the current choice.
                             if (choice.test(item) == true)
                                 return true;

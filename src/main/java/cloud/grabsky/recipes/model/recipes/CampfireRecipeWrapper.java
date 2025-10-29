@@ -37,7 +37,7 @@ import org.bukkit.inventory.CampfireRecipe;
 public final class CampfireRecipeWrapper extends FurnaceRecipeWrapper {
 
     public CampfireRecipeWrapper() {
-        super(Type.CAMPFIRE);
+        super(RecipeWrapper.Type.CAMPFIRE_COOKING);
     }
 
     @Override
