@@ -2,7 +2,7 @@
 
 <img src="https://i.imgur.com/PBdAaFD.png" width=75%></img>
 <!-- [![GitHub Release](https://img.shields.io/github/v/release/Grabsky/Recipes?logo=github&labelColor=%2324292F&color=%23454F5A)](https://github.com/Grabsky/Recipes/releases/latest) -->
-[![Modrinth Downloads](https://img.shields.io/modrinth/dt/recipes.?logo=modrinth&logoColor=white&label=downloads&labelColor=%23139549&color=%2318c25f)](https://modrinth.com/plugin/recipes.)
+[![Modrinth Downloads](https://img.shields.io/modrinth/dt/recipes-plugin?logo=modrinth&logoColor=white&label=downloads&labelColor=%23139549&color=%2318c25f)](https://modrinth.com/plugin/recipes-plugin)
 [![Discord](https://img.shields.io/discord/1366851451208601783?cacheSeconds=3600&logo=discord&logoColor=white&label=%20&labelColor=%235865F2&color=%23707BF4)](https://discord.com/invite/PuzqF2Yd5q)
 [![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/Grabsky/Recipes?logo=codefactor&logoColor=white&label=%20)](https://www.codefactor.io/repository/github/grabsky/recipes/issues/main)
 
