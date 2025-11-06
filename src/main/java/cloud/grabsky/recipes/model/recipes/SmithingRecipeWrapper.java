@@ -52,6 +52,9 @@ public final class SmithingRecipeWrapper extends RecipeWrapper {
     @SerializedName("result")
     private Item result;
 
+    @SerializedName("copy_components")
+    private Boolean copyComponents;
+
     public SmithingRecipeWrapper() {
         super(RecipeWrapper.Type.SMITHING);
     }
@@ -63,7 +66,7 @@ public final class SmithingRecipeWrapper extends RecipeWrapper {
 
     @Override
     public SmithingRecipe toBukkit() {
-        return new SmithingTransformRecipe(super.key, result.toItemStack(), template, base, addition);
+        return new SmithingTransformRecipe(super.key, result.toItemStack(), template, base, addition, (copyComponents != null) ? copyComponents : true);
     }
 
 }
