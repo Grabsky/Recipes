@@ -34,7 +34,7 @@ package cloud.grabsky.recipes.model.recipes;
 
 import org.bukkit.inventory.SmokingRecipe;
 
-public final class SmokingRecipeWrapper extends FurnaceRecipeWrapper {
+public final class SmokingRecipeWrapper extends CookingRecipeWrapper {
 
     public SmokingRecipeWrapper() {
         super(RecipeWrapper.Type.SMOKING);
@@ -42,9 +42,8 @@ public final class SmokingRecipeWrapper extends FurnaceRecipeWrapper {
 
     @Override
     public SmokingRecipe toBukkit() {
-        super.experience = Math.max(0, super.experience);
+        super.experience = Math.max(0, (super.experience != null) ? super.experience : 0F);
         super.cookingTime = Math.max(0, (super.cookingTime != null) ? super.cookingTime : 200);
-
         return new SmokingRecipe(
                 super.key,
                 super.result.toItemStack(),

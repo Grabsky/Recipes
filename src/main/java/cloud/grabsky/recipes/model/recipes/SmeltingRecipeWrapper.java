@@ -34,7 +34,7 @@ package cloud.grabsky.recipes.model.recipes;
 
 import org.bukkit.inventory.FurnaceRecipe;
 
-public final class SmeltingRecipeWrapper extends FurnaceRecipeWrapper {
+public final class SmeltingRecipeWrapper extends CookingRecipeWrapper {
 
     public SmeltingRecipeWrapper() {
         super(RecipeWrapper.Type.SMELTING);
@@ -42,9 +42,8 @@ public final class SmeltingRecipeWrapper extends FurnaceRecipeWrapper {
 
     @Override
     public FurnaceRecipe toBukkit() {
-        super.experience = Math.max(0, super.experience);
+        super.experience = Math.max(0, (super.experience != null) ? super.experience : 0F);
         super.cookingTime = Math.max(0, (super.cookingTime != null) ? super.cookingTime : 200);
-
         return new FurnaceRecipe(
                 super.key,
                 super.result.toItemStack(),

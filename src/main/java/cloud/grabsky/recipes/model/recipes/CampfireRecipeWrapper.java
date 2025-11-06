@@ -34,7 +34,7 @@ package cloud.grabsky.recipes.model.recipes;
 
 import org.bukkit.inventory.CampfireRecipe;
 
-public final class CampfireRecipeWrapper extends FurnaceRecipeWrapper {
+public final class CampfireRecipeWrapper extends CookingRecipeWrapper {
 
     public CampfireRecipeWrapper() {
         super(RecipeWrapper.Type.CAMPFIRE_COOKING);
@@ -42,7 +42,7 @@ public final class CampfireRecipeWrapper extends FurnaceRecipeWrapper {
 
     @Override
     public CampfireRecipe toBukkit() {
-        super.experience = Math.max(0, super.experience);
+        super.experience = Math.max(0, (super.experience != null) ? super.experience : 0F);
         super.cookingTime = Math.max(0, (super.cookingTime != null) ? super.cookingTime : 200);
         return new CampfireRecipe(
                 super.key,

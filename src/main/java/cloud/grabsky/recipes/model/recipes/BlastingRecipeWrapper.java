@@ -34,7 +34,7 @@ package cloud.grabsky.recipes.model.recipes;
 
 import org.bukkit.inventory.BlastingRecipe;
 
-public final class BlastingRecipeWrapper extends FurnaceRecipeWrapper {
+public final class BlastingRecipeWrapper extends CookingRecipeWrapper {
 
     public BlastingRecipeWrapper() {
         super(RecipeWrapper.Type.BLASTING);

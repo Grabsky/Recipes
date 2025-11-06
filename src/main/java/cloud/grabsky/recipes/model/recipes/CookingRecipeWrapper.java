@@ -37,7 +37,7 @@ import org.bukkit.inventory.RecipeChoice;
 
 import org.jetbrains.annotations.NotNull;
 
-public abstract class FurnaceRecipeWrapper extends RecipeWrapper {
+public abstract class CookingRecipeWrapper extends RecipeWrapper {
 
     @SerializedName("input")
     protected RecipeChoice input;
@@ -51,7 +51,7 @@ public abstract class FurnaceRecipeWrapper extends RecipeWrapper {
     @SerializedName("cooking_time")
     protected Integer cookingTime;
 
-    public FurnaceRecipeWrapper(final @NotNull RecipeWrapper.Type type) {
+    public CookingRecipeWrapper(final @NotNull RecipeWrapper.Type type) {
         super(type);
     }
 
