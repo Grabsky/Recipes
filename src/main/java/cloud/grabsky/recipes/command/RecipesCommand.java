@@ -83,7 +83,7 @@ public enum RecipesCommand {
         final AtomicInteger number = new AtomicInteger(0);
         // Iterating over the recipes list and sending keys to the sender.
         plugin.registeredRecipes().forEach(recipe -> {
-            sender.sendTextMessage(plugin.configuration().messages().commandRecipesRecipesListEntry().repl("{number}", number.incrementAndGet(), "{recipe}", recipe.getKey()));
+            sender.sendTextMessage(plugin.configuration().messages().commandRecipesRecipesListEntry().repl("{number}", number.incrementAndGet(), "{recipe}", recipe.asString()));
         });
         // Sending footer message to the sender.
         return plugin.configuration().messages().commandRecipesRecipesListFooter();

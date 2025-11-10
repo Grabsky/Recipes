@@ -49,7 +49,8 @@ import lombok.RequiredArgsConstructor;
 public abstract class RecipeWrapper {
 
     @Getter(AccessLevel.PUBLIC)
-    protected transient NamespacedKey key;
+    @SerializedName("key")
+    protected NamespacedKey key;
 
     @SerializedName("type")
     protected RecipeWrapper.Type type;
@@ -62,8 +63,9 @@ public abstract class RecipeWrapper {
         this.type = type;
     }
 
-    public void init(final @NotNull NamespacedKey namespacedKey) {
-        this.key = namespacedKey;
+    public void setFallbackKey(final @NotNull NamespacedKey key) {
+        if (this.key == null)
+            this.key = key;
     }
 
     /** Returns {@code true} if this recipe is valid. */

@@ -236,7 +236,7 @@ public class Recipes extends JavaPlugin {
                         continue;
                     }
                     // Initializing the recipe.
-                    recipe.init(getNamespacedKey(file));
+                    recipe.setFallbackKey(getNamespacedKey(file));
                     // Adding the recipe to the list.
                     recipes.add(recipe);
                 } catch (final IOException | JsonParseException | IllegalArgumentException | IllegalStateException e) {

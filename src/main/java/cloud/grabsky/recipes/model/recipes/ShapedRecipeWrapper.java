@@ -45,7 +45,7 @@ public final class ShapedRecipeWrapper extends RecipeWrapper {
     @SerializedName("pattern")
     private String[] pattern;
 
-    @SerializedName("key")
+    @SerializedName("pattern_key")
     private Map<Character, RecipeChoice> patternKey;
 
     @SerializedName("result")
