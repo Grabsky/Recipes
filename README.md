@@ -20,7 +20,7 @@
 - **Custom Items**  
   Easily add and update custom items using built-in custom item registry.
 - **Override Existing Recipes**  
-  Override other recipes by customizing recipes’ namespace.
+  Override vanilla and other plugins' recipes.
 
 <br>
 
