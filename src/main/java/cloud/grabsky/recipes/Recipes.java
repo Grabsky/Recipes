@@ -160,7 +160,7 @@ public class Recipes extends JavaPlugin {
         // Updating the plugin instance.
         instance = this;
         // Checking whether the plugin is running on a development build and displaying a warning message accordingly.
-        if (this.getPluginMeta().getVersion().endsWith("-SNAPSHOT") == true)
+        if (this.getPluginMeta().getVersion().endsWith("-DEV") == true)
             this.getLogger().warning("You're running a development build of Recipes. Keep in mind that it may contain bugs and compatibility issues.");
         // Checking whether the server is running Folia and displaying a warning message accordingly.
         if (isFolia == true)
