@@ -40,6 +40,7 @@ import cloud.grabsky.recipes.configuration.adapters.ItemTypeAdapter;
 import cloud.grabsky.recipes.configuration.adapters.NamespacedKeyAdapter;
 import cloud.grabsky.recipes.configuration.adapters.RecipeChoiceAdapter;
 import cloud.grabsky.recipes.listeners.DiscoverTriggerListener;
+import cloud.grabsky.recipes.listeners.ResourcesReloadedListener;
 import cloud.grabsky.recipes.model.recipes.RecipeWrapper;
 import cloud.grabsky.recipes.registry.CustomItemRegistry;
 import com.google.gson.Gson;
@@ -174,10 +175,11 @@ public class Recipes extends JavaPlugin {
         // Creating new instance of CustomItemRegistry.
         this.customItemRegistry = new CustomItemRegistry(this);
         // Reloading the plugin, and disabling it if something goes wrong.
-        if (this.onReload() == false)
+        if (this.onReload(true) == false)
             this.getServer().getPluginManager().disablePlugin(this);
         // Registering event listeners.
         this.getServer().getPluginManager().registerEvents(new DiscoverTriggerListener(this), this);
+        this.getServer().getPluginManager().registerEvents(new ResourcesReloadedListener(this), this);
         // Initializing Lamp.
         this.lamp = BukkitLamp.builder(this)
                 // Registering @Dependency dependencies.
@@ -195,20 +197,22 @@ public class Recipes extends JavaPlugin {
         new Metrics(this, 27768);
     }
 
-    public boolean onReload() {
-        this.configurationFile = new File(this.getDataFolder(), "config.yml");
-        // Initializing instance of CommentedConfiguration.
-        this.commentedConfiguration = new CommentedConfiguration(configurationFile.toPath(), specGson, ArrayCommentStyle.COMMENT_FIRST_ELEMENT, YAML.get());
-        // Loading configuration file.
-        this.configuration = Specs.fromConfig(PluginConfiguration.class, commentedConfiguration);
-        // Saving default contents to the configuration file.
-        this.configuration.save();
-        // Reloading and mapping configuration file contents to the PluginConfiguration instance.
-        this.configuration.reload();
-        // Getting the configured plugin namespace that will be used for recipe registration.
-        this.namespace = initializeNamespace();
-        // Refreshing the custom item registry.
-        customItemRegistry.refresh();
+    public boolean onReload(final boolean reloadConfig) {
+        if (reloadConfig == true) {
+            this.configurationFile = new File(this.getDataFolder(), "config.yml");
+            // Initializing instance of CommentedConfiguration.
+            this.commentedConfiguration = new CommentedConfiguration(configurationFile.toPath(), specGson, ArrayCommentStyle.COMMENT_FIRST_ELEMENT, YAML.get());
+            // Loading configuration file.
+            this.configuration = Specs.fromConfig(PluginConfiguration.class, commentedConfiguration);
+            // Saving default contents to the configuration file.
+            this.configuration.save();
+            // Reloading and mapping configuration file contents to the PluginConfiguration instance.
+            this.configuration.reload();
+            // Getting the configured plugin namespace that will be used for recipe registration.
+            this.namespace = initializeNamespace();
+            // Refreshing the custom item registry.
+            customItemRegistry.refresh();
+        }
         // Unregistering all plugin-defined recipes.
         registeredRecipes.removeIf(getServer()::removeRecipe);
         // Clearing the list of recipes.

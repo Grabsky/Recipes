@@ -62,12 +62,18 @@ public interface PluginConfiguration {
     }
 
     @Order(2) @Key("disabled_recipes")
-    @Comment("List of recipes to be unregistered upon plugin reload.\nKeep in mind running /minecraft:reload command will bring back all vanilla recipes disabled by this list.")
+    @Comment("List of recipes to be unregistered upon plugin reload.")
     default @Unmodifiable List<NamespacedKey> disabledRecipes() {
         return Collections.emptyList();
     }
 
-    @Order(3) @Key("messages")
+    @Order(3) @Key("hook_into_resources_reload_event")
+    @Comment("Whether to hook into resources reload event. (Default: true)\nWhen this is false, and operator runs /minecraft:reload command, all custom and disabled recipes will be lost.")
+    default boolean hookIntoResourcesReloadEvent() {
+        return true;
+    }
+
+    @Order(4) @Key("messages")
     @Comment("Translatable messages used across the entire plugin. MiniMessage is the only supported text format.")
     Messages messages();
 

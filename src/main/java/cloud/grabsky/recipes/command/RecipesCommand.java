@@ -66,7 +66,7 @@ public enum RecipesCommand {
     @CommandPermission("recipes.command.reload")
     public String onReload(final @NotNull CommandSender sender) {
         // Reloading the plugin.
-        plugin.onReload();
+        plugin.onReload(true);
         // Sending message to the sender.
         return plugin.configuration().messages().commandRecipesReloadSuccess();
     }
