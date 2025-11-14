@@ -88,10 +88,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 
-// TO-DO: Recipe Editor (GUI) (?)
 // TO-DO: Improve performance by skipping recipes that are already registered and have not changed.
 @Accessors(fluent = true)
-@SuppressWarnings("UnstableApiUsage") // ItemType
+@SuppressWarnings("UnstableApiUsage") // ItemType, PluginMeta
 public class Recipes extends JavaPlugin {
 
     private static final Gson GSON = new GsonBuilder()
@@ -162,7 +161,6 @@ public class Recipes extends JavaPlugin {
     });
 
     @Override
-    @SuppressWarnings("UnstableApiUsage")
     public void onEnable() {
         // Updating the plugin instance.
         instance = this;
