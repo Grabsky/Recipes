@@ -32,6 +32,7 @@
  */
 package cloud.grabsky.recipes.configuration;
 
+import org.bukkit.NamespacedKey;
 import revxrsal.spec.annotation.Comment;
 import revxrsal.spec.annotation.ConfigSpec;
 import revxrsal.spec.annotation.Key;
@@ -39,6 +40,11 @@ import revxrsal.spec.annotation.Order;
 import revxrsal.spec.annotation.Reload;
 import revxrsal.spec.annotation.Reset;
 import revxrsal.spec.annotation.Save;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.jetbrains.annotations.Unmodifiable;
 
 @ConfigSpec
 public interface PluginConfiguration {
@@ -53,6 +59,12 @@ public interface PluginConfiguration {
     @Comment("Whether exception stacktrace should be minimized. (Default: true)")
     default boolean minimizeExceptionsStacktrace() {
         return true;
+    }
+
+    @Order(2) @Key("disabled_recipes")
+    @Comment("List of recipes to be unregistered upon plugin reload.\nKeep in mind running /minecraft:reload command will bring back all vanilla recipes disabled by this list.")
+    default @Unmodifiable List<NamespacedKey> disabledRecipes() {
+        return Collections.emptyList();
     }
 
     @Order(3) @Key("messages")

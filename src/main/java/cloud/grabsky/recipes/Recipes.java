@@ -48,6 +48,7 @@ import com.google.gson.JsonParseException;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.RecipeChoice;
@@ -130,6 +131,11 @@ public class Recipes extends JavaPlugin {
 
     private final File recipesDir = new File(getDataFolder(), "recipes");
 
+    // Gson instance used passed to Spec.
+    private final Gson specGson = CommentedConfiguration.GSON.newBuilder()
+            .registerTypeAdapter(NamespacedKey.class, NamespacedKeyAdapter.INSTANCE)
+            .create();
+
     private static final Pattern NAMESPACE_PATTERN = Pattern.compile("[a-z0-9._-]+$");
     private static final Pattern KEY_PATTERN = Pattern.compile("[a-z0-9/._-]+$");
 
@@ -192,7 +198,7 @@ public class Recipes extends JavaPlugin {
     public boolean onReload() {
         this.configurationFile = new File(this.getDataFolder(), "config.yml");
         // Initializing instance of CommentedConfiguration.
-        this.commentedConfiguration = new CommentedConfiguration(configurationFile.toPath(), CommentedConfiguration.GSON, ArrayCommentStyle.COMMENT_FIRST_ELEMENT, YAML.get());
+        this.commentedConfiguration = new CommentedConfiguration(configurationFile.toPath(), specGson, ArrayCommentStyle.COMMENT_FIRST_ELEMENT, YAML.get());
         // Loading configuration file.
         this.configuration = Specs.fromConfig(PluginConfiguration.class, commentedConfiguration);
         // Saving default contents to the configuration file.
@@ -211,6 +217,8 @@ public class Recipes extends JavaPlugin {
         loadRecipes(recipesDir);
         // Registering the recipes.
         registerRecipes();
+        // Unregistering disabled recipes.
+        this.configuration.disabledRecipes().forEach(Bukkit::removeRecipe);
         // Sending information to the console. (Commented out because it is inaccurate)
         this.getLogger().info("Loaded and registered " + registeredRecipes.size() + " recipes.");
         // Returning...
@@ -258,6 +266,9 @@ public class Recipes extends JavaPlugin {
     private void registerRecipes() {
         recipes.forEach(recipe -> {
             final NamespacedKey key = recipe.getKey();
+            // Skipping recipes that were disabled in config.yml.
+            if (this.configuration.disabledRecipes().contains(key) == true)
+                return;
             // Support for overriding vanilla commands. PluginConfiguration namespace must be set to "minecraft" for that to work.
             if (key.getNamespace().equals("minecraft") == true && this.getServer().getRecipe(key) != null) {
                 // Removing the original recipe. It won't be added back until the server restart or "minecraft:reload" command is executed.

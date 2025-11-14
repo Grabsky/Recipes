@@ -36,6 +36,8 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import org.bukkit.NamespacedKey;
 
 import java.lang.reflect.Type;
@@ -43,7 +45,7 @@ import java.lang.reflect.Type;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public enum NamespacedKeyAdapter implements JsonDeserializer<NamespacedKey> {
+public enum NamespacedKeyAdapter implements JsonDeserializer<NamespacedKey>, JsonSerializer<NamespacedKey> {
     INSTANCE; // SINGLETON
 
     @Override
@@ -59,6 +61,11 @@ public enum NamespacedKeyAdapter implements JsonDeserializer<NamespacedKey> {
             throw new JsonParseException("Key \"" + value + "\" is not a valid resource location / namespaced key.");
         // Returning...
         return key;
+    }
+
+    @Override // Serialization currently used only by Spec.
+    public JsonElement serialize(final NamespacedKey obj, final Type classType, final JsonSerializationContext context) {
+        return new JsonPrimitive(obj.asString());
     }
 
 }
