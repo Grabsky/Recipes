@@ -41,7 +41,6 @@ import org.jetbrains.annotations.NotNull;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-// Listeners defined in this class should be compatible all forks including Folia.
 @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 public final class ResourcesReloadedListener implements Listener {
 
