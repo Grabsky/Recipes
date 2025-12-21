@@ -36,6 +36,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.BufferedReader;
@@ -64,8 +67,8 @@ public final class CustomItemRegistry {
 
     private final Recipes plugin;
 
-    // Stores plugin-specified items in their raw form. This is populated by Gson.
-    private final Map<String, String> internalMap = new HashMap<>();
+    // Stores plugin-specified items in their raw form. Populated by Gson.
+    private final Map<String, JsonElement> internalMap = new HashMap<>();
 
     // Stores plugin-specified items backed by their identifier.
     private transient final Map<String, ItemStack> registry = new HashMap<>();
@@ -78,7 +81,7 @@ public final class CustomItemRegistry {
             .create();
 
     // Represents the internal type of the map. Used for (de)serialization.
-    private static final Type MAP_TYPE = new TypeToken<Map<String, String>>() {}.getType();
+    private static final Type MAP_TYPE = new TypeToken<Map<String, JsonElement>>() {}.getType();
 
     // Represents the pattern used to validate identifiers.
     private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("[a-zA-Z0-9_\\-]+");
@@ -90,7 +93,6 @@ public final class CustomItemRegistry {
             plugin.saveResource("item_registry.json", false);
             return;
         }
-        // Trying...
         try {
             // Saving the internal map to the file if it is not empty.
             if (internalMap.isEmpty() == false) {
@@ -104,7 +106,7 @@ public final class CustomItemRegistry {
             // Preparing the BufferedReader.
             final BufferedReader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8);
             // Deserializing the map from the JSON file.
-            final Map<String, String> map = GSON.fromJson(reader, MAP_TYPE);
+            final Map<String, JsonElement> map = GSON.fromJson(reader, MAP_TYPE);
             // Closing the reader.
             reader.close();
             // Clearing the map.
@@ -117,11 +119,15 @@ public final class CustomItemRegistry {
         // Clearing the registry.
         registry.clear();
         // Deserializing items defined as bytes to ItemStack objects.
-        internalMap.forEach((identifier, encoded) -> {
-            // Decoding the bytes through the Base64 encoder.
-            final byte[] decoded = Base64.getDecoder().decode(encoded.getBytes(StandardCharsets.UTF_8));
-            // Deserializing the bytes to an ItemStack object.
-            registry.put(identifier, ItemStack.deserializeBytes(decoded));
+        internalMap.forEach((identifier, value) -> {
+            // final byte[] decoded = Base64.getDecoder().decode(encoded.getBytes(StandardCharsets.UTF_8));
+            final ItemStack item = (value.isJsonPrimitive() == true)
+                    // OLD FORMAT: Deserializing the item from Base64 decoded bytes.
+                    ? ItemStack.deserializeBytes(Base64.getDecoder().decode(value.getAsString().getBytes(StandardCharsets.UTF_8)))
+                    // NEW FORMAT: Deserializing the item from JsonObject.
+                    : Bukkit.getUnsafe().deserializeItemFromJson((JsonObject) value);
+            // Adding the item to the registry.
+            registry.put(identifier, item);
         });
     }
 
@@ -141,9 +147,10 @@ public final class CustomItemRegistry {
         // Setting the ItemStack's amount to 1.
         item.setAmount(1);
         // Encoding the bytes through the Base64 encoder.
-        final String bytes = new String(Base64.getEncoder().encode(item.serializeAsBytes()), StandardCharsets.UTF_8);
+        // final String bytes = new String(Base64.getEncoder().encode(item.serializeAsBytes()), StandardCharsets.UTF_8);
+        final JsonObject json = Bukkit.getUnsafe().serializeItemAsJson(item);
         // Putting the encoded bytes in the internal map.
-        internalMap.put(identifier, bytes);
+        internalMap.put(identifier, json);
         // Refreshing the registry...
         refresh();
         // Returning...
@@ -158,7 +165,7 @@ public final class CustomItemRegistry {
         // Checking whether the identifier is valid.
         if (internalMap.containsKey(identifier) == false)
             return false;
-        // Removing entry form the internal map.
+        // Removing entry from the internal map.
         internalMap.remove(identifier);
         // Refreshing the registry...
         refresh();
