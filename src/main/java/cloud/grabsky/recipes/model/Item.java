@@ -33,6 +33,8 @@
 package cloud.grabsky.recipes.model;
 
 import cloud.grabsky.recipes.Recipes;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -70,7 +72,7 @@ public final class Item {
     private final @Nullable List<String> lore;
 
     @Getter(AccessLevel.PUBLIC)
-    private final @Nullable String components;
+    private final @Nullable JsonElement components;
 
     @SuppressWarnings("deprecation") // Suppressing @Deprecated warnings. Well aware Bukkit#getUnsafe must is a subject to change.
     public ItemStack toItemStack() throws IllegalArgumentException {
@@ -87,8 +89,31 @@ public final class Item {
         } else if (type != null) {
             final ItemStack item = type.createItemStack();
             // Setting item components if specified. This is done first as it can be overridden by named properties in next steps.
-            if (components != null && !components.trim().isEmpty())
-                Bukkit.getUnsafe().modifyItemStack(item, type.key().asString() + components);
+            if (components != null) {
+                // Applying raw / inline components string on ItemStack.
+                if (components.isJsonPrimitive() == true && components.getAsString().isEmpty() == false)
+                    Bukkit.getUnsafe().modifyItemStack(item, type.key().asString() + components.getAsString());
+                // Otherwise, parsing a 'structured' format.
+                else if (components.isJsonObject() == true && components.getAsJsonObject().isEmpty() == false) {
+                    // Building components String. This will be what goes inside square brackets.
+                    final StringBuilder componentsBuilder = new StringBuilder();
+                    components.getAsJsonObject().entrySet().forEach(it -> {
+                        // Reading as String directly and appending to the builder.
+                        if (it.getValue().isJsonPrimitive() == true && it.getValue().isJsonArray() == false) {
+                            final JsonPrimitive primitive = it.getValue().getAsJsonPrimitive();
+                            // getAsString removes quotes. In some cases they must be re-added.
+                            final String value = (primitive.isString() == true && primitive.getAsString().startsWith("{") == false && primitive.getAsString().startsWith("[") == false)
+                                    ? "\"" + primitive.getAsString() + "\""
+                                    : it.getValue().getAsString();
+                            componentsBuilder.append(it.getKey()).append("=").append(value).append(",");
+                        }
+                    });
+                    // Removing trailing comma.
+                    componentsBuilder.deleteCharAt(componentsBuilder.length() - 1);
+                    // Applying components on ItemStack.
+                    Bukkit.getUnsafe().modifyItemStack(item, type.key().asString() + "[" + componentsBuilder + "]");
+                }
+            }
             // Setting amount if specified and greater than 0.
             if (amount != null && amount > 0)
                 item.setAmount(Math.min(item.getMaxStackSize(), amount));
