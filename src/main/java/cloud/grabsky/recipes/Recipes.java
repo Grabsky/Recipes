@@ -46,6 +46,7 @@ import cloud.grabsky.recipes.registry.CustomItemRegistry;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import dev.faststats.bukkit.BukkitMetrics;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -191,8 +192,10 @@ public class Recipes extends JavaPlugin {
                 .build();
         // Registering command(s).
         lamp.register(RecipesCommand.INSTANCE);
-        // Starting bStats...
+        // Setting up bStats...
         new Metrics(this, 27768);
+        // Setting up FastStats...
+        BukkitMetrics.factory().token("c534bae80a29af6a8b1933a747791d16").create(this);
     }
 
     public boolean onReload(final boolean reloadConfig) {
