@@ -144,6 +144,9 @@ public class Recipes extends JavaPlugin {
     @Getter(AccessLevel.PUBLIC)
     private static boolean isFolia;
 
+    private Metrics bStats;
+    private dev.faststats.core.Metrics fastStats;
+
     static {
         try {
             Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
@@ -193,9 +196,17 @@ public class Recipes extends JavaPlugin {
         // Registering command(s).
         lamp.register(RecipesCommand.INSTANCE);
         // Setting up bStats...
-        new Metrics(this, 27768);
+        this.bStats = new Metrics(this, 27768);
         // Setting up FastStats...
-        BukkitMetrics.factory().token("c534bae80a29af6a8b1933a747791d16").create(this);
+        this.fastStats = BukkitMetrics.factory().token("c534bae80a29af6a8b1933a747791d16").create(this);
+    }
+
+    @Override
+    public void onDisable() {
+        // Shutting down bStats.
+        this.bStats.shutdown();
+        // Shutting down FastStats.
+        this.fastStats.shutdown();
     }
 
     public boolean onReload(final boolean reloadConfig) {

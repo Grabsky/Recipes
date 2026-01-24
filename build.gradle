@@ -30,7 +30,7 @@ dependencies {
     // Spec (Configuration)
     paperLibrary("io.github.revxrsal:spec:1.5")
     // FastStats
-    paperLibrary("dev.faststats.metrics:bukkit:0.11.1")
+    paperLibrary("dev.faststats.metrics:bukkit:0.13.0")
 }
 
 tasks {
