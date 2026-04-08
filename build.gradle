@@ -24,13 +24,13 @@ dependencies {
     // Paper API
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
     // Lamp (Commands)
-    paperLibrary("io.github.revxrsal:lamp.common:4.0.0-rc.14")
-    paperLibrary("io.github.revxrsal:lamp.bukkit:4.0.0-rc.14")
-    paperLibrary("io.github.revxrsal:lamp.brigadier:4.0.0-rc.14")
+    paperLibrary("io.github.revxrsal:lamp.common:4.0.0-rc.16")
+    paperLibrary("io.github.revxrsal:lamp.bukkit:4.0.0-rc.16")
+    paperLibrary("io.github.revxrsal:lamp.brigadier:4.0.0-rc.16")
     // Spec (Configuration)
     paperLibrary("io.github.revxrsal:spec:1.5")
     // FastStats
-    paperLibrary("dev.faststats.metrics:bukkit:0.13.0")
+    paperLibrary("dev.faststats.metrics:bukkit:0.21.0")
 }
 
 tasks {
