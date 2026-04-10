@@ -92,7 +92,11 @@ public final class Item {
             if (components != null) {
                 // Applying raw / inline components string on ItemStack.
                 if (components.isJsonPrimitive() == true && components.getAsString().isEmpty() == false)
-                    Bukkit.getUnsafe().modifyItemStack(item, type.key().asString() + components.getAsString());
+                    // 26.1+
+                    if (Bukkit.getUnsafe().getProtocolVersion() >= 775)
+                        Bukkit.getUnsafe().modifyItemStack(item, components.getAsString());
+                    // Fallback
+                    else Bukkit.getUnsafe().modifyItemStack(item, type.key().asString() + components.getAsString());
                 // Otherwise, parsing a 'structured' format.
                 else if (components.isJsonObject() == true && components.getAsJsonObject().isEmpty() == false) {
                     // Building components String. This will be what goes inside square brackets.
@@ -110,8 +114,11 @@ public final class Item {
                     });
                     // Removing trailing comma.
                     componentsBuilder.deleteCharAt(componentsBuilder.length() - 1);
-                    // Applying components on ItemStack.
-                    Bukkit.getUnsafe().modifyItemStack(item, type.key().asString() + "[" + componentsBuilder + "]");
+                    // 26.1+
+                    if (Bukkit.getUnsafe().getProtocolVersion() >= 775)
+                        Bukkit.getUnsafe().modifyItemStack(item, "[" + componentsBuilder + "]");
+                    // Fallback
+                    else Bukkit.getUnsafe().modifyItemStack(item, type.key().asString() + "[" + componentsBuilder + "]");
                 }
             }
             // Setting amount if specified and greater than 0.
