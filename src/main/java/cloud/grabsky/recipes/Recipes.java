@@ -74,6 +74,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -119,7 +120,7 @@ public class Recipes extends JavaPlugin {
     private CustomItemRegistry customItemRegistry;
 
     @Getter(AccessLevel.PUBLIC)
-    private final List<RecipeWrapper> recipes = new ArrayList<>();
+    private final List<RecipeWrapper> recipes = Collections.synchronizedList(new ArrayList<>());
 
     @Getter(AccessLevel.PUBLIC)
     private final List<NamespacedKey> registeredRecipes = new ArrayList<>();
@@ -249,15 +250,16 @@ public class Recipes extends JavaPlugin {
             return;
         }
         // Sorting and iterating through files in natural order to ensure that they are loaded in the same order every time.
-        for (final File file : Stream.of(files).sorted(Comparator.naturalOrder()).toList()) {
+        Stream.of(files).parallel().forEach(file -> {
             if (file.isDirectory() == true)
                 this.loadRecipes(file);
             else if (file.getName().toLowerCase().endsWith(".json") == true) {
                 try {
                     final RecipeWrapper recipe = GSON.fromJson(new FileReader(file), RecipeWrapper.class);
+                    // Returning for null or invalid recipes.
                     if (recipe == null || recipe.isValid() == false) {
                         this.getLogger().warning("Recipe \"" + file.getName() + "\" is invalid.");
-                        continue;
+                        return;
                     }
                     // Initializing the recipe.
                     recipe.setFallbackKey(getNamespacedKey(file));
@@ -276,11 +278,11 @@ public class Recipes extends JavaPlugin {
                         this.getLogger().severe(" (2) " + e.getCause().getClass().getSimpleName() + ": " + e.getCause().getMessage());
                 }
             }
-        }
+        });
     }
 
     private void registerRecipes() {
-        recipes.forEach(recipe -> {
+        recipes.stream().sorted(Comparator.comparing(RecipeWrapper::getKey)).forEach(recipe -> {
             final NamespacedKey key = recipe.getKey();
             // Skipping recipes that were disabled in config.yml.
             if (this.configuration.disabledRecipes().contains(key) == true)
@@ -288,7 +290,7 @@ public class Recipes extends JavaPlugin {
             // Support for overriding vanilla commands. PluginConfiguration namespace must be set to "minecraft" for that to work.
             if (key.getNamespace().equals("minecraft") == true && this.getServer().getRecipe(key) != null) {
                 // Removing the original recipe. It won't be added back until the server restart or "minecraft:reload" command is executed.
-                this.getServer().removeRecipe(key);
+                this.getServer().removeRecipe(key, false);
                 // Sending information to the console.
                 this.getLogger().warning("Recipe \"" + key + "\" is now overriding vanilla recipe with the same key.");
             }
