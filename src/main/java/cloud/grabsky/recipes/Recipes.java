@@ -46,7 +46,7 @@ import cloud.grabsky.recipes.registry.CustomItemRegistry;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
-import dev.faststats.bukkit.BukkitMetrics;
+import dev.faststats.bukkit.BukkitContext;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -146,7 +146,7 @@ public class Recipes extends JavaPlugin {
     private static boolean isFolia;
 
     private Metrics bStats;
-    private dev.faststats.core.Metrics fastStats;
+    private BukkitContext fastStats;
 
     static {
         try {
@@ -199,7 +199,9 @@ public class Recipes extends JavaPlugin {
         // Setting up bStats...
         this.bStats = new Metrics(this, 27768);
         // Setting up FastStats...
-        this.fastStats = BukkitMetrics.factory().token("c534bae80a29af6a8b1933a747791d16").create(this);
+        this.fastStats = new BukkitContext.Factory(this, "c534bae80a29af6a8b1933a747791d16")
+                .metrics(dev.faststats.Metrics.Factory::create)
+                .create();
     }
 
     @Override
