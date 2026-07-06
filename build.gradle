@@ -22,6 +22,10 @@ configurations.implementation {
     extendsFrom(configurations.shadowImplementation)
 }
 
+tasks.named("runServer") {
+    dependsOn(tasks.named("jar"))
+}
+
 repositories {
     mavenLocal()
     mavenCentral()
