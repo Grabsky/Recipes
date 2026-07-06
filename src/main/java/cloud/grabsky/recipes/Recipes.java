@@ -245,6 +245,9 @@ public class Recipes extends JavaPlugin {
     }
 
     private void loadRecipes(final @NotNull File dir) {
+        // Creating recipes directory in case it does not exist.
+        dir.mkdirs();
+        // Getting all recipe files within recipes directory.
         final File[] files = dir.listFiles();
         // Returning if there is no files in the specified dir.
         if (files == null || files.length == 0) {
