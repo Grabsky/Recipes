@@ -32,7 +32,6 @@
  */
 package cloud.grabsky.recipes;
 
-import cloud.grabsky.bstats.Metrics;
 import cloud.grabsky.recipes.command.RecipesCommand;
 import cloud.grabsky.recipes.configuration.PluginConfiguration;
 import cloud.grabsky.recipes.configuration.adapters.GenericEnumAdapter;
@@ -145,8 +144,9 @@ public class Recipes extends JavaPlugin {
     @Getter(AccessLevel.PUBLIC)
     private static boolean isFolia;
 
-    private Metrics bStats;
-    private BukkitContext fastStats;
+    private BukkitContext fastStats = new BukkitContext.Factory(this, "c534bae80a29af6a8b1933a747791d16")
+            .metrics(dev.faststats.Metrics.Factory::create)
+            .create();
 
     static {
         try {
@@ -196,18 +196,12 @@ public class Recipes extends JavaPlugin {
                 .build();
         // Registering command(s).
         lamp.register(RecipesCommand.INSTANCE);
-        // Setting up bStats...
-        this.bStats = new Metrics(this, 27768);
         // Setting up FastStats...
-        this.fastStats = new BukkitContext.Factory(this, "c534bae80a29af6a8b1933a747791d16")
-                .metrics(dev.faststats.Metrics.Factory::create)
-                .create();
+        this.fastStats.ready();
     }
 
     @Override
     public void onDisable() {
-        // Shutting down bStats.
-        this.bStats.shutdown();
         // Shutting down FastStats.
         this.fastStats.shutdown();
     }
